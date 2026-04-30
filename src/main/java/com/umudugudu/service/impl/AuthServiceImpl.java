@@ -98,7 +98,11 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getPhoneNumber(), "", List.of()
+                user.getPhoneNumber(),
+                "",
+                List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(
+                        "ROLE_" + user.getRole().name()
+                ))
         );
 
         if (!jwtUtils.isTokenValid(refreshToken, userDetails)) {
