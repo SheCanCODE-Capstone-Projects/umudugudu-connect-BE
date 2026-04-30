@@ -71,9 +71,15 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
         }
         String username = authentication.getName();
+        String role = authentication.getAuthorities()
+                .stream()
+                .findFirst()
+                .map(a -> a.getAuthority())
+                .orElse("NO_ROLE");
 
         return ResponseEntity.ok(Map.of(
                 "username", username,
+                "role", role,
                 "message", "User fetched successfully"
         ));
     }
