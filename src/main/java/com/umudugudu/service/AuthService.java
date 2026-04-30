@@ -1,5 +1,7 @@
 package com.umudugudu.service;
 
+import com.umudugudu.dto.response.AuthResponse;
+
 public interface AuthService {
 
     void sendOtp(String phone);
