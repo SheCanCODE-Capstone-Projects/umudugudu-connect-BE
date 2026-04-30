@@ -6,10 +6,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * TODO: Inject UserRepository and load real User entity.
- * This stub compiles and lets Spring Boot start cleanly.
- */
+private final UserRepository userRepository;
+
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
@@ -22,7 +20,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         return new org.springframework.security.core.userdetails.User(
                 user.getPhoneNumber(),
-                "", // no password for OTP login
-                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
+                "",
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+        );
     }
 }
