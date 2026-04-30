@@ -20,7 +20,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() ->
                         new UsernameNotFoundException("User not found: " + phoneNumber)
                 );
-
+        if (user.getRole() == null) {
+            throw new RuntimeException("User role is null for user: " + user.getPhoneNumber());
+        }
         return new org.springframework.security.core.userdetails.User(
                  user.getPhoneNumber(),
                 "",

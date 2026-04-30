@@ -29,16 +29,29 @@ public class JwtUtils {
     }
 
     public String generateAccessToken(UserDetails userDetails) {
-        return buildToken(userDetails.getUsername(), jwtExpirationMs);
+        String role = userDetails.getAuthorities()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No role assigned to user"))
+                .getAuthority();
+
+        return buildToken(userDetails.getUsername(), role, jwtExpirationMs);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(userDetails.getUsername(), refreshExpiryMs);
+        String role = userDetails.getAuthorities()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No role assigned to user"))
+                .getAuthority();
+
+        return buildToken(userDetails.getUsername(), role, refreshExpiryMs);
     }
 
-    private String buildToken(String subject, long expiry) {
+    private String buildToken(String subject, String role, long expiry) {
         return Jwts.builder()
                 .subject(subject)
+                .claim("role", role)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiry))
                 .signWith(getKey())
