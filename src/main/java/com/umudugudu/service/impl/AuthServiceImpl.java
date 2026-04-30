@@ -1,7 +1,5 @@
 package com.umudugudu.service.impl;
 
-import com.umudugudu.dto.request.LoginRequest;
-import com.umudugudu.dto.request.RegisterRequest;
 import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.entity.Otp;
 import com.umudugudu.entity.Role;
@@ -12,10 +10,11 @@ import com.umudugudu.security.JwtUtils;
 import com.umudugudu.service.AuthService;
 import com.umudugudu.util.SmsService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Random;
 
 @Service
@@ -24,57 +23,10 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final OtpRepository otpRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final SmsService smsService;
 
-    @Override
-    public String register(RegisterRequest request) {
 
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email already exists");
-        }
-
-        if (userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
-            throw new RuntimeException("Phone number already exists");
-        }
-
-        User user = User.builder()
-                .fullName(request.getFullName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .phoneNumber(request.getPhoneNumber())
-                .role(Role.CITIZEN)
-                .enabled(true)
-                .build();
-
-        userRepository.save(user);
-
-        return "Registered Successfully";
-    }
-
-    @Override
-    public AuthResponse login(LoginRequest request) {
-
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
-
-        String accessToken = jwtUtils.generateToken(user.getEmail());
-        String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
-
-        return new AuthResponse(
-                accessToken,
-                refreshToken,
-                "Login successful",
-                user
-        );
-    }
-
-    // ================= SEND OTP =================
     @Override
     public void sendOtp(String phone) {
 
@@ -90,7 +42,6 @@ public class AuthServiceImpl implements AuthService {
         smsService.sendSms(phone, "Your OTP is " + code);
     }
 
-    // ================= VERIFY OTP =================
     @Override
     public AuthResponse verifyOtp(String phone, String code) {
 
@@ -105,7 +56,6 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid OTP");
         }
 
-        // find user (or create if not exists)
         User user = userRepository.findByPhoneNumber(phone)
                 .orElseGet(() -> {
                     User newUser = User.builder()
@@ -116,37 +66,41 @@ public class AuthServiceImpl implements AuthService {
                     return userRepository.save(newUser);
                 });
 
-        String accessToken = jwtUtils.generateToken(user.getEmail() != null ? user.getEmail() : phone);
-        String refreshToken = jwtUtils.generateRefreshToken(user.getEmail() != null ? user.getEmail() : phone);
+        UserDetails userDetails = buildUserDetails(user);
 
-        return new AuthResponse(
-                accessToken,
-                refreshToken,
-                "OTP verified successfully",
-                user
-        );
+        String accessToken = jwtUtils.generateAccessToken(userDetails);
+        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
+
+        return new AuthResponse(accessToken, refreshToken, "OTP verified", user);
     }
 
-    // ================= REFRESH TOKEN =================
     @Override
     public AuthResponse refreshToken(String refreshToken) {
 
         String username = jwtUtils.extractUsername(refreshToken);
 
         User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseGet(() ->
+                        userRepository.findByPhoneNumber(username)
+                                .orElseThrow(() -> new RuntimeException("User not found"))
+                );
 
-        if (!jwtUtils.isTokenValid(refreshToken, username)) {
+        UserDetails userDetails = buildUserDetails(user);
+
+        if (!jwtUtils.isTokenValid(refreshToken, userDetails)) {
             throw new RuntimeException("Invalid refresh token");
         }
 
-        String newAccessToken = jwtUtils.generateToken(username);
+        String newAccessToken = jwtUtils.generateAccessToken(userDetails);
 
-        return new AuthResponse(
-                newAccessToken,
-                refreshToken,
-                "Token refreshed successfully",
-                user
+        return new AuthResponse(newAccessToken, refreshToken, "Token refreshed", user);
+    }
+
+    private UserDetails buildUserDetails(User user) {
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail() != null ? user.getEmail() : user.getPhoneNumber(),
+                "",
+                Collections.emptyList()
         );
     }
 }
