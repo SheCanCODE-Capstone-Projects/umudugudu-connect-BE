@@ -1,5 +1,6 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.LoginRequest;
 import com.umudugudu.dto.request.OtpRequest;
 import com.umudugudu.dto.request.OtpVerifyRequest;
 import com.umudugudu.dto.request.RegisterRequest;
@@ -89,4 +90,10 @@ public class AuthController {
         AuthResponse response = authService.register(request);
         return ResponseEntity.ok(response);
     }
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        AuthResponse response = authService.login(request);
+        return ResponseEntity.ok(response);
+    }
+
 }
