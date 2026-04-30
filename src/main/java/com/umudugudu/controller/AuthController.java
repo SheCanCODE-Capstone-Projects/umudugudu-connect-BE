@@ -1,5 +1,6 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,13 +16,15 @@ import java.util.Map;
  *
  * TODO: Inject OtpService, JwtUtils, UserService and implement.
  */
+private final AuthService authService;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
     @PostMapping("/otp/request")
     public ResponseEntity<Map<String, String>> requestOtp(@RequestBody Map<String, String> body) {
-        // TODO: validate phoneNumber, call OtpService.sendOtp(phoneNumber)
+        String phone = body.get("phoneNumber");
+        authService.sendOtp(phone);
         return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
     }
 
