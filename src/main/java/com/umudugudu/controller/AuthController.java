@@ -1,6 +1,7 @@
 package com.umudugudu.controller;
 
 import com.umudugudu.dto.request.OtpRequest;
+import com.umudugudu.dto.request.OtpVerifyRequest;
 import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +35,10 @@ public class AuthController {
     }
 
     @PostMapping("/otp/verify")
-    public ResponseEntity<Map<String, Object>> verifyOtp(@RequestBody Map<String, String> body) {
-        String phone = body.get("phoneNumber");
-        String code = body.get("code");
+    public ResponseEntity<?> verifyOtp(@RequestBody OtpVerifyRequest request) {
+        String phone = request.getPhoneNumber();
+        String code = request.getOtp();
+
 
         AuthResponse response = authService.verifyOtp(phone, code);
 
