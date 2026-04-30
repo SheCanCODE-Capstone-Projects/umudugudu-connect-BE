@@ -10,6 +10,7 @@ import com.umudugudu.repository.OtpRepository;
 import com.umudugudu.repository.UserRepository;
 import com.umudugudu.security.JwtUtils;
 import com.umudugudu.service.AuthService;
+import com.umudugudu.util.SmsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

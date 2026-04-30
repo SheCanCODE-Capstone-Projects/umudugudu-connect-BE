@@ -10,7 +10,9 @@ public interface AuthService {
 
     AuthResponse login(LoginRequest request);
 
-    String sendOtp(String phone);
+    void sendOtp(String phone);
 
-    String verifyOtp(String phone,String code);
+    AuthResponse verifyOtp(String phone, String code);
+
+    AuthResponse refreshToken(String refreshToken);
 }
