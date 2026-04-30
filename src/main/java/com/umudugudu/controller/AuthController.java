@@ -44,8 +44,13 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<Map<String, String>> refresh(@RequestBody Map<String, String> body) {
-        // TODO: validate refreshToken → issue new accessToken
-        return ResponseEntity.ok(Map.of("message", "TODO: return new accessToken"));
+        String refreshToken = body.get("refreshToken");
+
+        AuthResponse response = authService.refreshToken(refreshToken);
+
+        return ResponseEntity.ok(Map.of(
+                "accessToken", response.getAccessToken()
+        ));
     }
 
     @GetMapping("/me")
