@@ -1,0 +1,95 @@
+package com.umudugudu.service.impl;
+
+import com.umudugudu.service.AuthService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@RequiredArgsConstructor
+public class AuthServiceImpl implements AuthService {
+
+    private final OtpRepository otpRepository;
+    private final UserRepository userRepository;
+    private final JwtUtils jwtUtils;
+    private final SmsService smsService;
+
+    @Override
+    public void sendOtp(String phone) {
+
+        String code = String.valueOf(new Random().nextInt(900000) + 100000);
+
+        Otp otp = new Otp();
+        otp.setPhoneNumber(phone);
+        otp.setCode(code);
+        otp.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+        otp.setAttempts(0);
+
+        otpRepository.save(otp);
+
+        smsService.sendSms(phone, "Your OTP is " + code);
+    }
+
+    @Override
+    public AuthResponse verifyOtp(String phone, String code) {
+
+        Otp otp = otpRepository.findTopByPhoneNumberOrderByIdDesc(phone)
+                .orElseThrow(() -> new RuntimeException("OTP not found"));
+
+        if (LocalDateTime.now().isAfter(otp.getExpiryTime())) {
+            throw new RuntimeException("Code expired");
+        }
+
+        if (!otp.getCode().equals(code)) {
+
+            otp.setAttempts(otp.getAttempts() + 1);
+            otpRepository.save(otp);
+
+            int remaining = 3 - otp.getAttempts();
+
+            if (remaining <= 0) {
+                throw new RuntimeException("Too many attempts. Request new OTP");
+            }
+
+            throw new RuntimeException("Invalid code — " + remaining + " attempts remaining");
+        }
+
+        User user = userRepository.findByPhoneNumber(phone)
+                .orElseGet(() -> {
+                    User newUser = new User();
+                    newUser.setPhoneNumber(phone);
+                    newUser.setRole(Role.CITIZEN);
+                    newUser.setEnabled(true);
+                    return userRepository.save(newUser);
+                });
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                user.getPhoneNumber(), "", List.of()
+        );
+
+        String accessToken = jwtUtils.generateAccessToken(userDetails);
+        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
+
+        return new AuthResponse(accessToken, refreshToken, "OTP verified", user);
+    }
+
+    @Override
+    public AuthResponse refreshToken(String refreshToken) {
+
+        String username = jwtUtils.extractUsername(refreshToken);
+
+        User user = userRepository.findByPhoneNumber(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                user.getPhoneNumber(), "", List.of()
+        );
+
+        if (!jwtUtils.isTokenValid(refreshToken, userDetails)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        String newAccessToken = jwtUtils.generateAccessToken(userDetails);
+
+        return new AuthResponse(newAccessToken, refreshToken, "Token refreshed", user);
+    }
+}
