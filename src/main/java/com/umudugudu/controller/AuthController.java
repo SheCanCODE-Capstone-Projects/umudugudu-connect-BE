@@ -6,6 +6,8 @@ import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -61,8 +63,18 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Map<String, String>> me() {
-        // TODO: return authenticated user from SecurityContext
-        return ResponseEntity.ok(Map.of("message", "TODO: return user profile"));
+    public ResponseEntity<?> me() {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        String username = authentication.getName();
+
+        return ResponseEntity.ok(Map.of(
+                "username", username,
+                "message", "User fetched successfully"
+        ));
     }
 }
