@@ -54,8 +54,16 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
-        return ResponseEntity.status(500)
-            .body(new ErrorResponse("An unexpected error occurred", 500, "INTERNAL_ERROR", LocalDateTime.now()));
+    public ResponseEntity<?> handle(Exception ex) {
+
+        ex.printStackTrace();
+
+        return new ResponseEntity<>(
+                Map.of(
+                        "message", ex.getMessage(),
+                        "status", 500
+                ),
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 }

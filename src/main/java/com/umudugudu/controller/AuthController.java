@@ -1,7 +1,9 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.OtpRequest;
 import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.service.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,13 +21,14 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private AuthService authService;
+    private final AuthService authService;
 
     @PostMapping("/otp/request")
-    public ResponseEntity<Map<String, String>> requestOtp(@RequestBody Map<String, String> body) {
-        String phone = body.get("phoneNumber");
+    public ResponseEntity<?> requestOtp(@RequestBody OtpRequest request) {
+        String phone = request.getPhoneNumber();
         authService.sendOtp(phone);
         return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
     }
