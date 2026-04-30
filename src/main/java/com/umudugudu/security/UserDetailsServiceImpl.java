@@ -16,16 +16,17 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
-        User user = userRepository.findByPhoneNumber(phoneNumber)
+        User user = userRepository.findByEmail(username)
+                .or(() -> userRepository.findByPhoneNumber(username))
                 .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found: " + phoneNumber)
+                        new UsernameNotFoundException("User not found: " + username)
                 );
         if (user.getRole() == null) {
             throw new RuntimeException("User role is null for user: " + user.getPhoneNumber());
         }
         return new org.springframework.security.core.userdetails.User(
-                 user.getPhoneNumber(),
-                "",
+                user.getEmail() != null ? user.getEmail() : user.getPhoneNumber(),
+                user.getPassword() != null ? user.getPassword() : "",
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
