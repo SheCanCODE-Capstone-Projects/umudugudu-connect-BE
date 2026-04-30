@@ -30,8 +30,16 @@ public class AuthController {
 
     @PostMapping("/otp/verify")
     public ResponseEntity<Map<String, Object>> verifyOtp(@RequestBody Map<String, String> body) {
-        // TODO: OtpService.verify(phoneNumber, code) → load user → generate JWT
-        return ResponseEntity.ok(Map.of("message", "TODO: return accessToken, refreshToken, user"));
+        String phone = body.get("phoneNumber");
+        String code = body.get("code");
+
+        AuthResponse response = authService.verifyOtp(phone, code);
+
+        return ResponseEntity.ok(Map.of(
+                "accessToken", response.getAccessToken(),
+                "refreshToken", response.getRefreshToken(),
+                "user", response.getUser()
+        ));
     }
 
     @PostMapping("/refresh")
