@@ -1,15 +1,18 @@
 package com.umudugudu.security;
 
+import com.umudugudu.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
+import com.umudugudu.entity.User;
 
 import java.util.List;
 
-private final UserRepository userRepository;
-
 @Service
+@RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
@@ -19,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 );
 
         return new org.springframework.security.core.userdetails.User(
-                user.getPhoneNumber(),
+                 user.getPhoneNumber(),
                 "",
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );

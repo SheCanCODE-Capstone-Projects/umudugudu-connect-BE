@@ -1,5 +1,6 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,10 +17,11 @@ import java.util.Map;
  *
  * TODO: Inject OtpService, JwtUtils, UserService and implement.
  */
-private final AuthService authService;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
+
+    private AuthService authService;
 
     @PostMapping("/otp/request")
     public ResponseEntity<Map<String, String>> requestOtp(@RequestBody Map<String, String> body) {
