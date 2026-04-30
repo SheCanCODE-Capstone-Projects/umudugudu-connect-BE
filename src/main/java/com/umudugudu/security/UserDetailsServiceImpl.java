@@ -15,11 +15,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
-        // TODO: replace with:
-        //   User user = userRepository.findByPhoneNumber(phoneNumber)
-        //       .orElseThrow(() -> new UsernameNotFoundException("User not found: " + phoneNumber));
-        //   return new org.springframework.security.core.userdetails.User(
-        //       user.getPhoneNumber(), "", List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
-        throw new UsernameNotFoundException("UserRepository not yet wired — implement this service.");
+        User user = userRepository.findByPhoneNumber(phoneNumber)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found: " + phoneNumber)
+                );
+
+        return new org.springframework.security.core.userdetails.User(
+                user.getPhoneNumber(),
+                "", // no password for OTP login
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
     }
 }
