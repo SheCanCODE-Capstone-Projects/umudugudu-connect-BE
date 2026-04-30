@@ -1,5 +1,7 @@
 package com.umudugudu.service.impl;
 
+import com.umudugudu.dto.request.LoginRequest;
+import com.umudugudu.dto.request.RegisterRequest;
 import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.entity.Otp;
 import com.umudugudu.entity.Role;
@@ -113,4 +115,34 @@ public class AuthServiceImpl implements AuthService {
 
         return new AuthResponse(newAccessToken, refreshToken, "Token refreshed", user);
     }
+    @Override
+    public AuthResponse register(RegisterRequest request) {
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder()
+                .encode(request.getPassword()));
+        user.setRole(Role.CITIZEN);
+        user.setEnabled(true);
+
+        userRepository.save(user);
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPassword(),
+                List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(
+                        "ROLE_" + user.getRole().name()
+                ))
+        );
+
+        String accessToken = jwtUtils.generateAccessToken(userDetails);
+        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
+
+        return new AuthResponse(accessToken, refreshToken, "User registered", user);
+    }
+
 }
