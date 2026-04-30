@@ -12,5 +12,4 @@ public class AuthResponse {
     private String refreshToken;
     private String message;
     private User user;
-    private String token;
 }
