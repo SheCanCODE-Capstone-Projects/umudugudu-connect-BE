@@ -31,6 +31,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public String register(RegisterRequest request) {
 
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        if (userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
+            throw new RuntimeException("Phone number already exists");
+        }
+
         User user = User.builder()
                 .fullName(request.getFullName())
                 .email(request.getEmail())
@@ -49,21 +57,28 @@ public class AuthServiceImpl implements AuthService {
     public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid Credentials");
+            throw new RuntimeException("Invalid credentials");
         }
 
-        String token = jwtUtils.generateToken(user.getEmail());
+        String accessToken = jwtUtils.generateToken(user.getEmail());
+        String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
 
-        return new AuthResponse(token,"Login Success");
+        return new AuthResponse(
+                accessToken,
+                refreshToken,
+                "Login successful",
+                user
+        );
     }
 
+    // ================= SEND OTP =================
     @Override
-    public String sendOtp(String phone) {
+    public void sendOtp(String phone) {
 
-        String code = String.valueOf(new Random().nextInt(900000)+100000);
+        String code = String.valueOf(new Random().nextInt(900000) + 100000);
 
         Otp otp = new Otp();
         otp.setPhoneNumber(phone);
@@ -72,23 +87,66 @@ public class AuthServiceImpl implements AuthService {
 
         otpRepository.save(otp);
 
-        smsService.sendSms(phone,"Your OTP is "+code);
-
-        return "OTP Sent";
+        smsService.sendSms(phone, "Your OTP is " + code);
     }
 
+    // ================= VERIFY OTP =================
     @Override
-    public String verifyOtp(String phone, String code) {
+    public AuthResponse verifyOtp(String phone, String code) {
 
         Otp otp = otpRepository.findTopByPhoneNumberOrderByIdDesc(phone)
-                .orElseThrow();
+                .orElseThrow(() -> new RuntimeException("OTP not found"));
 
-        if(LocalDateTime.now().isAfter(otp.getExpiryTime()))
-            return "OTP Expired";
+        if (LocalDateTime.now().isAfter(otp.getExpiryTime())) {
+            throw new RuntimeException("OTP expired");
+        }
 
-        if(!otp.getCode().equals(code))
-            return "Invalid OTP";
+        if (!otp.getCode().equals(code)) {
+            throw new RuntimeException("Invalid OTP");
+        }
 
-        return "Verified";
+        // find user (or create if not exists)
+        User user = userRepository.findByPhoneNumber(phone)
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .phoneNumber(phone)
+                            .role(Role.CITIZEN)
+                            .enabled(true)
+                            .build();
+                    return userRepository.save(newUser);
+                });
+
+        String accessToken = jwtUtils.generateToken(user.getEmail() != null ? user.getEmail() : phone);
+        String refreshToken = jwtUtils.generateRefreshToken(user.getEmail() != null ? user.getEmail() : phone);
+
+        return new AuthResponse(
+                accessToken,
+                refreshToken,
+                "OTP verified successfully",
+                user
+        );
+    }
+
+    // ================= REFRESH TOKEN =================
+    @Override
+    public AuthResponse refreshToken(String refreshToken) {
+
+        String username = jwtUtils.extractUsername(refreshToken);
+
+        User user = userRepository.findByEmail(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!jwtUtils.isTokenValid(refreshToken, username)) {
+            throw new RuntimeException("Invalid refresh token");
+        }
+
+        String newAccessToken = jwtUtils.generateToken(username);
+
+        return new AuthResponse(
+                newAccessToken,
+                refreshToken,
+                "Token refreshed successfully",
+                user
+        );
     }
 }
