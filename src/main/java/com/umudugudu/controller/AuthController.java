@@ -76,7 +76,7 @@ public class AuthController {
         String role = authentication.getAuthorities()
                 .stream()
                 .findFirst()
-                .map(a -> a.getAuthority())
+                .map(a -> a.getAuthority().replace("ROLE_", ""))
                 .orElse("NO_ROLE");
 
         return ResponseEntity.ok(Map.of(

@@ -12,6 +12,7 @@ import com.umudugudu.security.JwtUtils;
 import com.umudugudu.service.AuthService;
 import com.umudugudu.util.SmsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -77,12 +78,14 @@ public class AuthServiceImpl implements AuthService {
                     return userRepository.save(newUser);
                 });
 
+        String username = user.getEmail() != null
+                ? user.getEmail()
+                : user.getPhoneNumber();
+
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getPhoneNumber(),
+                username,
                 "",
-                List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(
-                        "ROLE_" + user.getRole().name()
-                ))
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
 
         String accessToken = jwtUtils.generateAccessToken(userDetails);
@@ -96,7 +99,8 @@ public class AuthServiceImpl implements AuthService {
 
         String username = jwtUtils.extractUsername(refreshToken);
 
-        User user = userRepository.findByPhoneNumber(username)
+        User user = userRepository.findByEmail(username)
+                .or(() -> userRepository.findByPhoneNumber(username))
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
