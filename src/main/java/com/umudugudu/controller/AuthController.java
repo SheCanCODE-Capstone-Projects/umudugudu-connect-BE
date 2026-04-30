@@ -2,6 +2,7 @@ package com.umudugudu.controller;
 
 import com.umudugudu.dto.request.OtpRequest;
 import com.umudugudu.dto.request.OtpVerifyRequest;
+import com.umudugudu.dto.request.RegisterRequest;
 import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -82,5 +83,10 @@ public class AuthController {
                 "role", role,
                 "message", "User fetched successfully"
         ));
+    }
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        AuthResponse response = authService.register(request);
+        return ResponseEntity.ok(response);
     }
 }
