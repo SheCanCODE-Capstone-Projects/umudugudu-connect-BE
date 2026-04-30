@@ -2,7 +2,6 @@ package com.umudugudu.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 @Entity
 @Data
 public class User {
@@ -14,6 +13,9 @@ public class User {
     private String phoneNumber;
     private String email;
     private String password;
-    private String role;
+
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     private boolean enabled;
 }
