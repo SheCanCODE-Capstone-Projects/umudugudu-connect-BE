@@ -38,21 +38,25 @@ public class JwtUtils {
 
     private String buildToken(String subject, long expiry) {
         return Jwts.builder()
-                .subject(subject)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiry))
-                .signWith(getKey())
+                .setSubject(subject)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiry))
+                .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+        return
+                extractClaim(token, Claims::getSubject);
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> resolver) {
         return resolver.apply(
-            Jwts.parser().verifyWith(getKey()).build()
-                .parseSignedClaims(token).getPayload()
+                Jwts.parserBuilder()
+                        .setSigningKey(getKey())
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody()
         );
     }
 
