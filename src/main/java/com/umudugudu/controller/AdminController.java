@@ -1,5 +1,9 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.UpdateRoleRequest;
+import com.umudugudu.repository.UserRepository;
+import com.umudugudu.service.AdminService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +26,10 @@ import java.util.Map;
 @RequestMapping("/api/v1/admin")
 @PreAuthorize("hasRole('ADMIN')")
 public class AdminController {
-
+    @Autowired
+    private AdminService adminService;
+    @Autowired
+    private UserRepository userRepository;
     @GetMapping("/dashboard")
     public ResponseEntity<Map<String, String>> dashboard() {
         // TODO: AdminService.getDashboardStats() — attendance %, payments, open requests by village
@@ -38,12 +45,16 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("message", "TODO: return paginated users list"));
     }
 
-    @PutMapping("/users/{id}/role")
-    public ResponseEntity<Map<String, String>> updateRole(@PathVariable String id,
-                                                           @RequestBody Map<String, String> body) {
-        // body: { role: CITIZEN|ISIBO_LEADER|VILLAGE_LEADER|ADMIN }
-        // TODO: UserService.updateRole(id, newRole) + AuditLogService.log(...)
-        return ResponseEntity.ok(Map.of("message", "TODO: update role for user " + id));
+    @PutMapping("/users/role-by-email")
+    public ResponseEntity<?> updateRole(@RequestBody UpdateRoleRequest request) {
+
+        String message = adminService.updateRoleByEmail(
+                request.getEmail(),
+                request.getRole()
+        );
+
+        return ResponseEntity.ok()
+                .body("Role updated successfully");
     }
 
     @PutMapping("/users/{id}/deactivate")
