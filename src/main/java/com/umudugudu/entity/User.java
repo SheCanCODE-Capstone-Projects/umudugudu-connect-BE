@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 @Entity
 @Data
 @Table(name = "users")
@@ -19,7 +20,7 @@ public class User {
 
     @Column(unique = true, nullable = false)
     @NotBlank
-   private String email;;
+    private String email;
 
     private String password;
 
@@ -30,6 +31,13 @@ public class User {
     private UUID villageId;
 
     private UUID isiboId;
+
+    @Column(unique = true)
+    private String phoneNumber;
+
+    private boolean smsNotificationsEnabled = true;
+
+    private String preferredNotificationMethod = "FCM";
 
     private boolean isActive = true;
 

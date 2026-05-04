@@ -17,6 +17,6 @@ class UmuduguduApplicationTests {
 
     @Test
     void contextLoads() {
-        // Verifies the Spring context starts without errors
+
     }
 }
