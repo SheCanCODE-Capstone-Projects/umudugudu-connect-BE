@@ -16,7 +16,6 @@ public class User {
     private UUID id;
 
     private String fullName;
-
     @Column(unique = true, nullable = false)
     @NotBlank
    private String email;;

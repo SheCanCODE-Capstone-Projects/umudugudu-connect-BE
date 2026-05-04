@@ -9,7 +9,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RegisterRequest {
-
     @NotBlank
     private String fullName;
 

@@ -52,7 +52,6 @@ public class GlobalExceptionHandler {
             "timestamp", LocalDateTime.now().toString()
         ));
     }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception ex) {
         return ResponseEntity.status(500)

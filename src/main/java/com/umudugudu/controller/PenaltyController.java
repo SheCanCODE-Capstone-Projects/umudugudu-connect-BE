@@ -31,7 +31,6 @@ public class PenaltyController {
     public ResponseEntity<Map<String, String>> myPenalties() {
         return ResponseEntity.ok(Map.of("message", "TODO: return citizen penalties"));
     }
-
     @GetMapping("/village")
     @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
     public ResponseEntity<Map<String, String>> villagePenalties() {

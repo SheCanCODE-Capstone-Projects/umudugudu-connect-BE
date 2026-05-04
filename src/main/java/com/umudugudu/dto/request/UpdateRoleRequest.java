@@ -11,7 +11,6 @@ import lombok.Setter;
 public class UpdateRoleRequest {
     @NotBlank
     private String email;
-
     @NotNull
     private Role role;
 }

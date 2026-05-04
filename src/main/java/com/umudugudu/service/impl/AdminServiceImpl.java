@@ -25,14 +25,11 @@ public class AdminServiceImpl extends AdminService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         if (user.getRole().equals(newRole)) {
             return "User already has role: " + user.getRole();
         }
-
         user.setRole(newRole);
         userRepository.save(user);
-
         return "Role updated to " + newRole + " for user " + email;
     }
 }

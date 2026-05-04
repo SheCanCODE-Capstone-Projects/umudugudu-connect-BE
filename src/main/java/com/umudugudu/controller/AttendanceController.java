@@ -26,7 +26,6 @@ public class AttendanceController {
         // TODO: AttendanceService.submitBulk(activityId, records, markedBy)
         return ResponseEntity.status(201).body(Map.of("message", "TODO: save attendance records"));
     }
-
     @GetMapping
     @PreAuthorize("hasAnyRole('ISIBO_LEADER','VILLAGE_LEADER','ADMIN')")
     public ResponseEntity<Map<String, String>> get(@PathVariable String activityId) {

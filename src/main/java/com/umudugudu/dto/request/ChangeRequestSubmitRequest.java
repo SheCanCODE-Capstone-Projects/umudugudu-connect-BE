@@ -9,7 +9,6 @@ import java.util.UUID;
 @Setter
 public class ChangeRequestSubmitRequest {
     private String fullName;
-
     @Email
     private String email;
 

@@ -104,7 +104,6 @@ app:
     refresh-expiry-ms: 604800000
   cors:
     allowed-origins:   ${CORS_ORIGINS}
-
 logging:
   level:
     com.umudugudu: INFO

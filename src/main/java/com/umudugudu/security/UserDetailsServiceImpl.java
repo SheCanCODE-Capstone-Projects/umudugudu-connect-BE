@@ -25,7 +25,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (!user.isActive()) {
             throw new UsernameNotFoundException("Account is deactivated: " + email);
         }
-
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),

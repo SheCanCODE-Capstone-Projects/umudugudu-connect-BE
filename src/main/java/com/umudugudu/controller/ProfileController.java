@@ -59,7 +59,6 @@ public class ProfileController {
         return ResponseEntity.ok(
                 profileService.getPendingRequests(principal.getUsername(), page, size));
     }
-
     // PUT /api/v1/profile/change-requests/{id} — VILLAGE_LEADER approve/reject
     @PutMapping("/change-requests/{id}")
     @PreAuthorize("hasRole('VILLAGE_LEADER')")

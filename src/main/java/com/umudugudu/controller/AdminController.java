@@ -35,7 +35,6 @@ public class AdminController {
         // TODO: AdminService.getDashboardStats() — attendance %, payments, open requests by village
         return ResponseEntity.ok(Map.of("message", "TODO: return aggregated KPIs"));
     }
-
     @GetMapping("/users")
     public ResponseEntity<Map<String, String>> users(
             @RequestParam(required = false) String village,

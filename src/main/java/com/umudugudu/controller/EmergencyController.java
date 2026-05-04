@@ -27,7 +27,6 @@ public class EmergencyController {
         //       — saves report, notifies Village Leader via push + SMS immediately
         return ResponseEntity.status(201).body(Map.of("message", "TODO: save emergency report + alert leader"));
     }
-
     @GetMapping
     @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
     public ResponseEntity<Map<String, String>> list() {

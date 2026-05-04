@@ -27,7 +27,6 @@ public class JwtUtils {
             java.util.Base64.getEncoder().encodeToString(jwtSecret.getBytes()).getBytes()
         );
     }
-
     public String generateAccessToken(UserDetails userDetails) {
         return buildToken(userDetails.getUsername(), jwtExpirationMs);
     }

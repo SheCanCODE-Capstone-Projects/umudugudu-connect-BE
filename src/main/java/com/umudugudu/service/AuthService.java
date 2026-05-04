@@ -103,7 +103,6 @@ public class AuthService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BusinessException("User not found."));
-
         return AuthResponse.builder()
                 .accessToken(jwtUtils.generateAccessToken(userDetails))
                 .refreshToken(refreshToken) // reuse same refresh token until it expires

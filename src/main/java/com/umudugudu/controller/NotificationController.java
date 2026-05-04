@@ -26,7 +26,6 @@ public class NotificationController {
         // TODO: NotificationService.broadcast(body, senderId) — push + SMS fallback
         return ResponseEntity.status(201).body(Map.of("message", "TODO: broadcast announcement"));
     }
-
     @GetMapping("/my")
     public ResponseEntity<Map<String, String>> myNotifications(
             @RequestParam(defaultValue = "0") int page,

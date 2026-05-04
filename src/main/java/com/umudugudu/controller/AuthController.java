@@ -38,7 +38,6 @@ public class AuthController {
     public ResponseEntity<AuthResponse> refresh(@RequestBody java.util.Map<String, String> body) {
         return ResponseEntity.ok(authService.refresh(body.get("refreshToken")));
     }
-
     // GET /api/v1/auth/me
     @GetMapping("/me")
     public ResponseEntity<ProfileResponse> me(@AuthenticationPrincipal UserDetails principal) {

@@ -25,7 +25,6 @@ public class ServiceRequestController {
     public ResponseEntity<Map<String, String>> submit(@RequestBody Map<String, Object> body) {
         return ResponseEntity.status(201).body(Map.of("message", "TODO: create service request"));
     }
-
     @GetMapping("/my")
     @PreAuthorize("hasRole('CITIZEN')")
     public ResponseEntity<Map<String, String>> myRequests() {

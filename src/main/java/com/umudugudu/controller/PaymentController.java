@@ -29,7 +29,6 @@ public class PaymentController {
         // Returns: { paymentId, status: "PENDING", message: "Confirm on your phone" }
         return ResponseEntity.status(201).body(Map.of("message", "TODO: initiate payment + return paymentId"));
     }
-
     @PostMapping("/callback/mtn")
     public ResponseEntity<Void> mtnCallback(
             @RequestHeader(value = "X-Callback-Signature", required = false) String signature,

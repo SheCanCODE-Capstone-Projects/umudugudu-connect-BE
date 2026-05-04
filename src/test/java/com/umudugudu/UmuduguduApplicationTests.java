@@ -14,7 +14,6 @@ import org.springframework.test.context.TestPropertySource;
     "spring.data.redis.host=localhost"
 })
 class UmuduguduApplicationTests {
-
     @Test
     void contextLoads() {
 

@@ -31,7 +31,6 @@ public class JwtFilter extends OncePerRequestFilter {
             chain.doFilter(request, response);
             return;
         }
-
         final String token = authHeader.substring(7);
         String username;
         try {

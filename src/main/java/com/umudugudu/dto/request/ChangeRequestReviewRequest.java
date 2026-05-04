@@ -8,7 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ChangeRequestReviewRequest {
-
     @NotNull
     private ChangeRequestStatus decision; // APPROVED or REJECTED
 

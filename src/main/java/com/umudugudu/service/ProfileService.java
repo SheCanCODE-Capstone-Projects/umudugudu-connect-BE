@@ -172,7 +172,6 @@ public class ProfileService {
                 .active(user.isActive())
                 .build();
     }
-
     private ChangeRequestResponse toChangeRequestResponse(ProfileChangeRequest req) {
         return ChangeRequestResponse.builder()
                 .id(req.getId())

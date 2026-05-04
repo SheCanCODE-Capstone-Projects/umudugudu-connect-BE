@@ -26,7 +26,6 @@ public class ActivityController {
         // TODO: ActivityService.create(request, currentUserId)
         return ResponseEntity.status(201).body(Map.of("message", "TODO: create activity"));
     }
-
     @GetMapping
     public ResponseEntity<Map<String, String>> list(
             @RequestParam(defaultValue = "0") int page,

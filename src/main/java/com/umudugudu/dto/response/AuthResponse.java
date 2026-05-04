@@ -3,7 +3,6 @@ package com.umudugudu.dto.response;
 import com.umudugudu.entity.Role;
 import lombok.Builder;
 import lombok.Getter;
-
 @Getter
 @Builder
 public class AuthResponse {

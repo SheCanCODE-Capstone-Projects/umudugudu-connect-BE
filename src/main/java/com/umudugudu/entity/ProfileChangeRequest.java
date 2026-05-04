@@ -24,7 +24,6 @@ public class ProfileChangeRequest {
     private UUID   requestedVillageId;
     private UUID   requestedIsiboId;
     private String citizenNote;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ChangeRequestStatus status = ChangeRequestStatus.PENDING;

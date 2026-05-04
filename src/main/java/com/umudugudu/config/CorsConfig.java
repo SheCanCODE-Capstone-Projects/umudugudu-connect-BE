@@ -14,7 +14,6 @@ public class CorsConfig {
 
     @Value("${app.cors.allowed-origins}")
     private String allowedOrigins;
-
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

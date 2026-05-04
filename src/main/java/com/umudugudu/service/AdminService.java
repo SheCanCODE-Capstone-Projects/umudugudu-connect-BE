@@ -19,7 +19,6 @@ public class AdminService {
     public AdminService() {
         userRepository = null;
     }
-
     @Transactional
     public String updateRoleByEmail(String email, Role newRole) {
         User user = userRepository.findByEmail(email)
