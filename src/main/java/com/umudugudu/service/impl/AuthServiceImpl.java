@@ -1,6 +1,7 @@
 package com.umudugudu.service.impl;
 
 import com.umudugudu.dto.request.LoginRequest;
+import com.umudugudu.dto.request.PhoneLoginRequest;
 import com.umudugudu.dto.request.RegisterRequest;
 import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.entity.Otp;
@@ -14,6 +15,7 @@ import com.umudugudu.util.SmsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -245,5 +247,32 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
 
         return new AuthResponse(accessToken, refreshToken, "Login successful", user);
+    }
+    @Override
+    public AuthResponse loginWithPhone(PhoneLoginRequest request) {
+
+        User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        if (!user.isVerified()) {
+            throw new RuntimeException("Please verify your phone/email first");
+        }
+
+        if (!encoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid credentials");
+        }
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                user.getPhoneNumber(),
+                user.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+        );
+
+        String accessToken = jwtUtils.generateAccessToken(userDetails);
+        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
+
+        return new AuthResponse(accessToken, refreshToken, "Phone login successful", user);
     }
 }
