@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -137,6 +138,7 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(newAccessToken, refreshToken, "Token refreshed", user);
     }
     @Override
+    @Transactional
     public void resendEmailOtp(String email) {
 
         User user = userRepository.findByEmail(email)
