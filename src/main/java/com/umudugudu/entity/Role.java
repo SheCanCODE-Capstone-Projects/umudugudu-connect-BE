@@ -1,9 +1,8 @@
 package com.umudugudu.entity;
 
 public enum Role {
+    CITIZEN,
     ADMIN,
-    USER,
-    ISIBO_LEADER,
-    VILLAGE_LEADER
+    VILLAGE_LEADER,
+    ISIBO_LEADER
 }
-

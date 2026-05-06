@@ -29,35 +29,46 @@ public class JwtUtils {
     }
 
     public String generateAccessToken(UserDetails userDetails) {
-        return buildToken(userDetails.getUsername(), jwtExpirationMs);
+        String role = userDetails.getAuthorities()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No role assigned to user"))
+                .getAuthority();
+
+        return buildToken(userDetails.getUsername(), role, jwtExpirationMs);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return buildToken(userDetails.getUsername(), refreshExpiryMs);
+        String role = userDetails.getAuthorities()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("No role assigned to user"))
+                .getAuthority();
+
+        return buildToken(userDetails.getUsername(), role, refreshExpiryMs);
     }
 
-    private String buildToken(String subject, long expiry) {
+    private String buildToken(String subject, String role, long expiry) {
         return Jwts.builder()
                 .setSubject(subject)
+                .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiry))
-                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .signWith(getKey())
                 .compact();
     }
 
     public String extractUsername(String token) {
-        return
-                extractClaim(token, Claims::getSubject);
+        return extractClaim(token, Claims::getSubject);
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> resolver) {
-        return resolver.apply(
-                Jwts.parserBuilder()
-                        .setSigningKey(getKey())
-                        .build()
-                        .parseClaimsJws(token)
-                        .getBody()
-        );
+    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = Jwts.parser()
+                .verifyWith(getKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
+        return claimsResolver.apply(claims);
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
