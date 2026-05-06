@@ -39,7 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("/phone-otp/verify")
-    public ResponseEntity<?> verifyOtp(@RequestBody OtpVerifyRequestEmail request) {
+    public ResponseEntity<?> verifyOtp(@RequestBody OtpVerifyRequestPhonenumber request) {
         String phone = request.getPhoneNumber();
         String code = request.getOtp();
 
