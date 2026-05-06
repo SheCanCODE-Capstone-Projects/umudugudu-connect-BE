@@ -10,6 +10,8 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String fullName;
+
     private String phoneNumber;
     private String email;
     private String password;
@@ -57,6 +59,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public boolean isEnabled() {
