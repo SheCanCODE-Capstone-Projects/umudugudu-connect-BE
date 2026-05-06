@@ -1,6 +1,7 @@
 package com.umudugudu.service;
 
 import com.umudugudu.dto.request.LoginRequest;
+import com.umudugudu.dto.request.PhoneLoginRequest;
 import com.umudugudu.dto.request.RegisterRequest;
 import com.umudugudu.dto.response.AuthResponse;
 
@@ -15,6 +16,7 @@ public interface AuthService {
     AuthResponse register(RegisterRequest request);
     AuthResponse login(LoginRequest request);
     void resendEmailOtp(String email);
+    AuthResponse loginWithPhone(PhoneLoginRequest request);
 
 }
 
