@@ -148,24 +148,21 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder()
                 .encode(request.getPassword()));
         user.setRole(Role.CITIZEN);
-        user.setEnabled(true);
+
+        user.setEnabled(false);
+        user.setVerified(false);
 
         userRepository.save(user);
 
-        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(
-                        "ROLE_" + user.getRole().name()
-                ))
+        sendOtpToEmail(user.getEmail());
+
+        return new AuthResponse(
+                null,
+                null,
+                "OTP sent to email. Please verify before login.",
+                user
         );
-
-        String accessToken = jwtUtils.generateAccessToken(userDetails);
-        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-
-        return new AuthResponse(accessToken, refreshToken, "User registered", user);
     }
-
     @Override
     public AuthResponse login(LoginRequest request) {
 
