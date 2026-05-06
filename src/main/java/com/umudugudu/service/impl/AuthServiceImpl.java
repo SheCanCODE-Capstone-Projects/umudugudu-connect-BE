@@ -164,6 +164,30 @@ public class AuthServiceImpl implements AuthService {
         );
     }
     @Override
+    public String verifyEmailOtp(String email, String code) {
+
+        Otp otp = otpRepository.findTopByEmailOrderByIdDesc(email)
+                .orElseThrow(() -> new RuntimeException("OTP not found"));
+
+        if (LocalDateTime.now().isAfter(otp.getExpiryTime())) {
+            throw new RuntimeException("OTP expired");
+        }
+
+        if (!otp.getCode().equals(code)) {
+            throw new RuntimeException("Invalid OTP");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setVerified(true);
+        user.setEnabled(true);
+
+        userRepository.save(user);
+
+        return "Email verified successfully";
+    }
+    @Override
     public AuthResponse login(LoginRequest request) {
 
         User user = userRepository.findByEmail(request.getEmail())

@@ -8,6 +8,7 @@ public interface AuthService {
 
     void sendOtp(String phone);
     void sendOtpToEmail(String email);
+    String verifyEmailOtp(String email, String code);
     AuthResponse verifyOtp(String phone, String code);
 
     AuthResponse refreshToken(String refreshToken);
