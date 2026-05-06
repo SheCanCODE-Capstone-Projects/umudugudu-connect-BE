@@ -1,9 +1,6 @@
 package com.umudugudu.controller;
 
-import com.umudugudu.dto.request.LoginRequest;
-import com.umudugudu.dto.request.OtpRequest;
-import com.umudugudu.dto.request.OtpVerifyRequest;
-import com.umudugudu.dto.request.RegisterRequest;
+import com.umudugudu.dto.request.*;
 import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.repository.UserRepository;
 import com.umudugudu.service.AuthService;
@@ -115,8 +112,8 @@ public class AuthController {
         ));
     }
     @PostMapping("/email/resend-otp")
-    public ResponseEntity<String> resendEmailOtp(@RequestBody Map<String, String> request) {
-        authService.resendEmailOtp(request.get("email"));
+    public ResponseEntity<String> resendEmailOtp(@RequestBody ResendOtpRequest request) {
+        authService.resendEmailOtp(request.getEmail());
         return ResponseEntity.ok("New OTP sent to your email");
     }
 
