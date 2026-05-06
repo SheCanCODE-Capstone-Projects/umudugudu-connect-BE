@@ -157,11 +157,15 @@ public class AuthServiceImpl implements AuthService {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
-
+        if (request.getPhoneNumber() != null &&
+                userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
+            throw new RuntimeException("Phone number already exists");
+        }
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
         user.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder()
                 .encode(request.getPassword()));
         user.setRole(Role.CITIZEN);
