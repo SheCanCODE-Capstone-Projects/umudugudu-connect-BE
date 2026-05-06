@@ -28,14 +28,15 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
     private final SmsService smsService;
-
+    private final EmailService emailService;
     @Override
+
     public void sendOtp(String phone) {
 
         String code = String.valueOf(new Random().nextInt(900000) + 100000);
 
         Otp otp = new Otp();
-        otp.setPhoneNumber(phone);
+        otp.setEmail(phone);
         otp.setCode(code);
         otp.setExpiryTime(LocalDateTime.now().plusMinutes(5));
         otp.setAttempts(0);
@@ -43,6 +44,22 @@ public class AuthServiceImpl implements AuthService {
         otpRepository.save(otp);
 
         smsService.sendSms(phone, "Your OTP is " + code);
+    }
+
+    @Override
+    public void sendOtpToEmail(String email) {
+
+        String code = String.valueOf(new Random().nextInt(900000) + 100000);
+
+        Otp otp = new Otp();
+        otp.setEmail(email);
+        otp.setCode(code);
+        otp.setExpiryTime(LocalDateTime.now().plusMinutes(5));
+        otp.setAttempts(0);
+
+        otpRepository.save(otp);
+
+        emailService.sendOtpEmail(email, code);
     }
 
     @Override
