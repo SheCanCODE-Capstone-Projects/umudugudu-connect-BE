@@ -38,8 +38,8 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "OTP sent successfully"));
     }
 
-    @PostMapping("/otp/verify")
-    public ResponseEntity<?> verifyOtp(@RequestBody OtpVerifyRequest request) {
+    @PostMapping("/phone-otp/verify")
+    public ResponseEntity<?> verifyOtp(@RequestBody OtpVerifyRequestEmail request) {
         String phone = request.getPhoneNumber();
         String code = request.getOtp();
 
@@ -99,8 +99,8 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/email/verify")
-    public ResponseEntity<?> verifyEmailOtp(@RequestBody OtpVerifyRequest request) {
+    @PostMapping("/email-otp/verify")
+    public ResponseEntity<?> verifyEmailOtp(@RequestBody OtpVerifyRequestEmail request) {
 
         String email = request.getEmail();
         String code = request.getOtp();
