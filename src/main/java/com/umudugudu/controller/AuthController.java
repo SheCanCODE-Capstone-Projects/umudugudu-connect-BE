@@ -96,4 +96,17 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/email/verify")
+    public ResponseEntity<?> verifyEmailOtp(@RequestBody OtpVerifyRequest request) {
+
+        String email = request.getEmail();
+        String code = request.getOtp();
+
+        String message = authService.verifyEmailOtp(email, code);
+
+        return ResponseEntity.ok(Map.of(
+                "message", message
+        ));
+    }
+
 }
