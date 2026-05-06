@@ -93,10 +93,16 @@ public class AuthController {
         AuthResponse response = authService.register(request);
         return ResponseEntity.ok(response);
     }
-    @PostMapping("/login")
+    @PostMapping("/login/email")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login/phone")
+    public ResponseEntity<AuthResponse> loginWithPhone(
+            @RequestBody PhoneLoginRequest request) {
+        return ResponseEntity.ok(authService.loginWithPhone(request));
     }
 
     @PostMapping("/email-otp/verify")
