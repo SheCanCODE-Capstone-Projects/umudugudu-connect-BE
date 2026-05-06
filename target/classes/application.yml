@@ -39,7 +39,7 @@ spring:
             enable: true
             required: true
           ssl:
-            trust: smtp.gmail.com  
+            trust: smtp.gmail.com
 
 server:
   port: 8082
