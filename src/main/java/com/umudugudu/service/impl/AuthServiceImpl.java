@@ -137,6 +137,19 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(newAccessToken, refreshToken, "Token refreshed", user);
     }
     @Override
+    public void resendEmailOtp(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.isVerified()) {
+            throw new RuntimeException("Email already verified");
+        }
+        otpRepository.deleteByEmail(email);
+
+        sendOtpToEmail(email);
+    }
+    @Override
     public AuthResponse register(RegisterRequest request) {
 
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
