@@ -144,6 +144,8 @@ public class AuthServiceImpl implements AuthService {
         }
 
         User user = new User();
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder()
                 .encode(request.getPassword()));

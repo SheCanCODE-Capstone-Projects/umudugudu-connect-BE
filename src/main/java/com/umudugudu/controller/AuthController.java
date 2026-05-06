@@ -5,6 +5,7 @@ import com.umudugudu.dto.request.OtpRequest;
 import com.umudugudu.dto.request.OtpVerifyRequest;
 import com.umudugudu.dto.request.RegisterRequest;
 import com.umudugudu.dto.response.AuthResponse;
+import com.umudugudu.repository.UserRepository;
 import com.umudugudu.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,6 +32,7 @@ import java.util.Map;
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
 
     @PostMapping("/otp/request")
     public ResponseEntity<?> requestOtp(@RequestBody OtpRequest request) {
@@ -72,18 +75,21 @@ public class AuthController {
         if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
         }
-        String username = authentication.getName();
-        String role = authentication.getAuthorities()
-                .stream()
-                .findFirst()
-                .map(a -> a.getAuthority().replace("ROLE_", ""))
-                .orElse("NO_ROLE");
 
-        return ResponseEntity.ok(Map.of(
-                "username", username,
-                "role", role,
-                "message", "User fetched successfully"
-        ));
+        String username = authentication.getName();
+
+        var user = userRepository.findByEmail(username)
+                .or(() -> userRepository.findByPhoneNumber(username))
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("firstName", user.getFirstName());
+        response.put("lastName", user.getLastName());
+        response.put("role", user.getRole() != null ? user.getRole().name() : null);
+        response.put("message", "User fetched successfully");
+
+        return ResponseEntity.ok(response);
     }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
