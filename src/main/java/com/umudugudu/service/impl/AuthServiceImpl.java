@@ -185,11 +185,21 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new RuntimeException("OTP not found"));
 
         if (LocalDateTime.now().isAfter(otp.getExpiryTime())) {
-            throw new RuntimeException("OTP expired");
+            throw new RuntimeException("Code expired. Please request a new OTP");
         }
 
-        if (!otp.getCode().equals(code)) {
-            throw new RuntimeException("Invalid OTP");
+        if (!otp.getCode().equals(code.trim())) {
+
+            otp.setAttempts(otp.getAttempts() + 1);
+            otpRepository.save(otp);
+
+            int remaining = 3 - otp.getAttempts();
+
+            if (remaining <= 0) {
+                throw new RuntimeException("Too many attempts. Please request a new OTP");
+            }
+
+            throw new RuntimeException("Invalid OTP — " + remaining + " attempt(s) remaining");
         }
 
         User user = userRepository.findByEmail(email)
@@ -197,7 +207,6 @@ public class AuthServiceImpl implements AuthService {
 
         user.setVerified(true);
         user.setEnabled(true);
-
         userRepository.save(user);
 
         return "Email verified successfully";
