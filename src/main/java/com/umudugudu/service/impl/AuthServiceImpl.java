@@ -195,6 +195,9 @@ public class AuthServiceImpl implements AuthService {
 
         org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder =
                 new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        if (!user.isVerified()) {
+            throw new RuntimeException("Please verify your email first");
+        }
 
         if (!encoder.matches(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("Invalid credentials");
