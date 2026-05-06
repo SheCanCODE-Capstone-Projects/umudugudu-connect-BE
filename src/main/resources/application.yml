@@ -105,5 +105,17 @@ logging:
   level:
     com.umudugudu: INFO
     root: WARN
-
+---
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nishimwecelie@gmail.com
+    password: zqlo gxpe xzvf qmlx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
