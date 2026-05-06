@@ -14,6 +14,7 @@ public class Otp {
     private Long id;
 
     private String email;
+    private String phoneNumber;
     private String code;
     private LocalDateTime expiryTime;
     private int attempts;
