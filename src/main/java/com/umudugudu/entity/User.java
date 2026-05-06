@@ -1,5 +1,6 @@
 package com.umudugudu.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 @Entity
@@ -13,8 +14,12 @@ public class User {
     private String firstName;
     private String lastName;
 
+    @Column(unique = true)
     private String phoneNumber;
+
+    @Column(unique = true)
     private String email;
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
