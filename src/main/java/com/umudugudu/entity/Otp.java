@@ -13,7 +13,7 @@ public class Otp {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String phoneNumber;
+    private String email;
     private String code;
     private LocalDateTime expiryTime;
     private int attempts;
