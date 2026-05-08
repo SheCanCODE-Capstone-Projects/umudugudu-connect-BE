@@ -27,4 +27,8 @@ public class User {
 
     private boolean enabled;
     private boolean verified = false;
+
+    private String village;
+
+    private String isibo;
 }
