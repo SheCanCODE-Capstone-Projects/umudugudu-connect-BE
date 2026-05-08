@@ -22,7 +22,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfigurationSource;
 import com.umudugudu.security.OAuth2SuccessHandler;
 
-
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
