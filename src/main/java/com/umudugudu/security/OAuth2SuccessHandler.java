@@ -54,10 +54,23 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
 
-        String redirectUrl = "http://localhost:3000/oauth2/success"
-                + "?accessToken=" + accessToken
-                + "&refreshToken=" + refreshToken;
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
 
-        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+        String json = String.format("""
+        {
+          "message": "Google login successful",
+          "accessToken": "%s",
+          "refreshToken": "%s",
+          "user": {
+            "email": "%s",
+            "firstName": "%s",
+            "lastName": "%s"
+          }
+        }
+        """, accessToken, refreshToken, email, firstName, lastName);
+
+        response.getWriter().write(json);
     }
 }
