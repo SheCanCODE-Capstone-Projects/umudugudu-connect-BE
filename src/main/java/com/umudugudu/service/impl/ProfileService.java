@@ -8,6 +8,7 @@ import com.umudugudu.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.umudugudu.dto.response.ProfileResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -40,7 +41,7 @@ public class ProfileService {
                 .build();
     }
 
-    // ─── SUBMIT CHANGE REQUEST ───────────────────────────────────────────────────
+    //SUBMIT CHANGE REQUEST
 
     @Transactional
     public ChangeRequestResponse submitChangeRequest(Long userId, ProfileChangeRequestDto dto) {
