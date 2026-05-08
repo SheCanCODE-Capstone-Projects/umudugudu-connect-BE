@@ -10,9 +10,9 @@ spring:
     activate:
       on-profile: dev
   datasource:
-    url:               jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:umudugudu_db}
-    username:          ${DB_USERNAME:postgres}
-    password:          ${DB_PASSWORD:123}
+    url:               jdbc:postgresql://localhost:5432/umudugudu_db
+    username:          postgres
+    password:          celia
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -26,20 +26,6 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
-  mail:
-    host:     ${MAIL_HOST:smtp.gmail.com}
-    port:     ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
-          ssl:
-            trust: smtp.gmail.com
 
 server:
   port: 8082
@@ -103,18 +89,6 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-  mail:
-    host:     ${MAIL_HOST}
-    port:     ${MAIL_PORT}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
-            required: true
 
 server:
   port: 8080
@@ -131,3 +105,20 @@ logging:
   level:
     com.umudugudu: INFO
     root: WARN
+---
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: nishimwecelie@gmail.com
+    password: zqlo gxpe xzvf qmlx
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          ssl:
+            trust: smtp.gmail.com
+

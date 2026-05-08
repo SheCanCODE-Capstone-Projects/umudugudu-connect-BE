@@ -23,7 +23,9 @@ public class JwtUtils {
     private long refreshExpiryMs;
 
     private SecretKey getKey() {
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        return Keys.hmacShaKeyFor(
+            java.util.Base64.getEncoder().encodeToString(jwtSecret.getBytes()).getBytes()
+        );
     }
 
     public String generateAccessToken(UserDetails userDetails) {
@@ -61,12 +63,11 @@ public class JwtUtils {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = Jwts.parserBuilder()
-                .setSigningKey(getKey())
+        final Claims claims = Jwts.parser()
+                .verifyWith(getKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
-
+                .parseSignedClaims(token)
+                .getPayload();
         return claimsResolver.apply(claims);
     }
 

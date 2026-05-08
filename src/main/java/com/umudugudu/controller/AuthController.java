@@ -4,6 +4,7 @@ import com.umudugudu.dto.request.*;
 import com.umudugudu.dto.response.AuthResponse;
 import com.umudugudu.repository.UserRepository;
 import com.umudugudu.service.AuthService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -93,10 +94,16 @@ public class AuthController {
         AuthResponse response = authService.register(request);
         return ResponseEntity.ok(response);
     }
-    @PostMapping("/login")
+    @PostMapping("/login/email")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/login/phone")
+    public ResponseEntity<AuthResponse> loginWithPhone(
+            @RequestBody PhoneLoginRequest request) {
+        return ResponseEntity.ok(authService.loginWithPhone(request));
     }
 
     @PostMapping("/email-otp/verify")
@@ -116,5 +123,12 @@ public class AuthController {
         authService.resendEmailOtp(request.getEmail());
         return ResponseEntity.ok("New OTP sent to your email");
     }
-
+    @GetMapping("/oauth2/authorize/google")
+    public ResponseEntity<?> googleLoginUrl(HttpServletRequest request) {
+        String baseUrl = request.getScheme() + "://" + request.getServerName()
+                + ":" + request.getServerPort();
+        return ResponseEntity.ok(Map.of(
+                "url", baseUrl + "/api/v1/auth/oauth2/authorize/google"
+        ));
+    }
 }
