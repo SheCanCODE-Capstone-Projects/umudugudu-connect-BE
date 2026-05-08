@@ -1,5 +1,6 @@
 package com.umudugudu.service.impl;
 
+import com.umudugudu.dto.response.UserResponseDTO;
 import com.umudugudu.entity.Role;
 import com.umudugudu.entity.User;
 import com.umudugudu.repository.UserRepository;
@@ -34,6 +35,21 @@ public class AdminServiceImpl implements AdminService {
         userRepository.save(user);
 
         return "Role updated to " + newRole + " for user " + email;
+    }
+
+    @Override
+    public UserResponseDTO findUserByEmail(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getRole().name()
+        );
     }
 }
 
