@@ -42,7 +42,7 @@ spring:
             trust: smtp.gmail.com
 
 server:
-  port: 8082
+  port: 8080
 
 management:
   endpoints:
