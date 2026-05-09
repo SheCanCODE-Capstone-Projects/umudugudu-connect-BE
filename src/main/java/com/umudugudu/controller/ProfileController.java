@@ -1,11 +1,11 @@
 package com.umudugudu.controller;
 
-import com.umudugudu.dto.*;
 import com.umudugudu.dto.request.ProfileChangeRequestDto;
 import com.umudugudu.dto.request.ReviewChangeRequestDto;
 import com.umudugudu.dto.response.ChangeRequestResponse;
 import com.umudugudu.dto.response.ProfileResponse;
 import com.umudugudu.entity.Notification;
+import com.umudugudu.repository.UserRepository;
 import com.umudugudu.service.impl.ProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +22,7 @@ import java.util.List;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final UserRepository userRepository;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
@@ -62,26 +63,13 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.reviewChangeRequest(id, dto));
     }
 
-    @GetMapping("/notifications")
-    @PreAuthorize("hasAnyRole('VILLAGE_LEADER', 'ISIBO_LEADER', 'CITIZEN')")
-    public ResponseEntity<List<Notification>> getUnreadNotifications(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = extractUserId(userDetails);
-        return ResponseEntity.ok(profileService.getUnreadNotifications(userId));
-    }
-
-    @PatchMapping("/notifications/{id}/read")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> markNotificationRead(@PathVariable Long id) {
-        profileService.markNotificationRead(id);
-        return ResponseEntity.noContent().build();
-    }
-
     private Long extractUserId(UserDetails userDetails) {
-        // If your UserDetails implementation is your User entity:
         if (userDetails instanceof com.umudugudu.entity.User user) {
             return user.getId();
         }
-        throw new RuntimeException("Cannot extract user ID from principal");
+        String email = userDetails.getUsername();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email))
+                .getId();
     }
 }

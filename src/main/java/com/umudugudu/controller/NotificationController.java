@@ -1,42 +1,54 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.entity.Notification;
+import com.umudugudu.repository.UserRepository;
+import com.umudugudu.service.impl.ProfileService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 
-/**
- * Notifications and village announcements.
- *
- * POST /api/v1/notifications/announce   — broadcast announcement (VILLAGE_LEADER)
- * GET  /api/v1/notifications/my         — my notifications (all roles)
- * PUT  /api/v1/notifications/{id}/read  — mark as read
- *
- * TODO: Inject NotificationService, PushNotifService and implement.
- */
 @RestController
 @RequestMapping("/api/v1/notifications")
+@RequiredArgsConstructor
 public class NotificationController {
 
-    @PostMapping("/announce")
-    @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ISIBO_LEADER')")
-    public ResponseEntity<Map<String, String>> announce(@RequestBody Map<String, Object> body) {
-        // body: { title, message, targetIsibo (optional) }
-        // TODO: NotificationService.broadcast(body, senderId) — push + SMS fallback
-        return ResponseEntity.status(201).body(Map.of("message", "TODO: broadcast announcement"));
-    }
+    private final ProfileService profileService;
+    private final UserRepository userRepository; // ← ADDED
 
     @GetMapping("/my")
-    public ResponseEntity<Map<String, String>> myNotifications(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(Map.of("message", "TODO: return paginated notifications"));
+    @PreAuthorize("hasAnyRole('VILLAGE_LEADER', 'ISIBO_LEADER', 'CITIZEN')")
+    public ResponseEntity<List<Notification>> getMyNotifications(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        Long userId = extractUserId(userDetails);
+        return ResponseEntity.ok(profileService.getUnreadNotifications(userId));
     }
 
     @PutMapping("/{id}/read")
-    public ResponseEntity<Void> markRead(@PathVariable String id) {
-        // TODO: NotificationService.markRead(id, currentUserId)
-        return ResponseEntity.ok().build();
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<Void> markRead(@PathVariable Long id) {
+        profileService.markNotificationRead(id);
+        return ResponseEntity.noContent().build();
+    }
+
+//    @PostMapping("/announce")
+//    @PreAuthorize("hasAnyRole('VILLAGE_LEADER', 'ISIBO_LEADER')")
+//    public ResponseEntity<String> announce(@org.springframework.web.bind.annotation.RequestBody
+//                                           java.util.Map<String, Object> body) {
+//        return ResponseEntity.status(501).body("Announcement feature not yet implemented.");
+//    }
+
+    private Long extractUserId(UserDetails userDetails) {
+        if (userDetails instanceof com.umudugudu.entity.User user) {
+            return user.getId();
+        }
+        String email = userDetails.getUsername();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found: " + email))
+                .getId();
     }
 }

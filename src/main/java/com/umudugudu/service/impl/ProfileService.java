@@ -1,5 +1,4 @@
 package com.umudugudu.service.impl;
-import com.umudugudu.dto.*;
 import com.umudugudu.dto.request.ProfileChangeRequestDto;
 import com.umudugudu.dto.request.ReviewChangeRequestDto;
 import com.umudugudu.dto.response.ChangeRequestResponse;
