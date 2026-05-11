@@ -1,54 +1,73 @@
 package com.umudugudu.controller;
 
-import com.umudugudu.entity.Notification;
+import com.umudugudu.dto.response.NotificationResponse;
+import com.umudugudu.entity.User;
+import com.umudugudu.exception.ResourceNotFoundException;
 import com.umudugudu.repository.UserRepository;
-import com.umudugudu.service.impl.ProfileService;
+import com.umudugudu.security.UserDetailsServiceImpl;
+import com.umudugudu.service.NotificationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
 
+@Tag(name = "Notifications", description = "In-app notifications")
 @RestController
 @RequestMapping("/api/v1/notifications")
 @RequiredArgsConstructor
 public class NotificationController {
 
-    private final ProfileService profileService;
-    private final UserRepository userRepository; // ← ADDED
+    private final NotificationService    notificationService;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final UserRepository         userRepository;
 
+    @Operation(summary = "Get my notifications (paginated)")
     @GetMapping("/my")
-    @PreAuthorize("hasAnyRole('VILLAGE_LEADER', 'ISIBO_LEADER', 'CITIZEN')")
-    public ResponseEntity<List<Notification>> getMyNotifications(
-            @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = extractUserId(userDetails);
-        return ResponseEntity.ok(profileService.getUnreadNotifications(userId));
+    public ResponseEntity<Page<NotificationResponse>> myNotifications(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @AuthenticationPrincipal UserDetails principal) {
+
+        Long userId = userDetailsService.getUserIdByUsername(principal.getUsername());
+        return ResponseEntity.ok(
+                notificationService.getMyNotifications(userId, PageRequest.of(page, size)));
     }
 
+    @Operation(summary = "Mark a notification as read")
     @PutMapping("/{id}/read")
-    @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> markRead(@PathVariable Long id) {
-        profileService.markNotificationRead(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Void> markRead(
+            @PathVariable Long id,
+            @AuthenticationPrincipal UserDetails principal) {
+
+        Long userId = userDetailsService.getUserIdByUsername(principal.getUsername());
+        notificationService.markRead(id, userId);
+        return ResponseEntity.ok().build();
     }
 
-//    @PostMapping("/announce")
-//    @PreAuthorize("hasAnyRole('VILLAGE_LEADER', 'ISIBO_LEADER')")
-//    public ResponseEntity<String> announce(@org.springframework.web.bind.annotation.RequestBody
-//                                           java.util.Map<String, Object> body) {
-//        return ResponseEntity.status(501).body("Announcement feature not yet implemented.");
-//    }
+    @Operation(summary = "Register or update FCM device token for push notifications")
+    @PutMapping("/fcm-token")
+    public ResponseEntity<Map<String, String>> registerFcmToken(
+            @RequestBody Map<String, String> body,
+            @AuthenticationPrincipal UserDetails principal) {
 
-    private Long extractUserId(UserDetails userDetails) {
-        if (userDetails instanceof com.umudugudu.entity.User user) {
-            return user.getId();
+        String token = body.get("fcmToken");
+        if (token == null || token.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "fcmToken is required"));
         }
-        String email = userDetails.getUsername();
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found: " + email))
-                .getId();
+
+        Long userId = userDetailsService.getUserIdByUsername(principal.getUsername());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setFcmToken(token);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "FCM token registered"));
     }
 }

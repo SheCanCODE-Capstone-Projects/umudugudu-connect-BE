@@ -13,7 +13,8 @@ import org.springframework.test.context.TestPropertySource;
         "spring.datasource.url=jdbc:postgresql://localhost:5432/umudugudu_test",
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "app.jwt.secret=test_secret_32_chars_minimum_xxxx",
-        "spring.data.redis.host=localhost"
+        "spring.data.redis.host=localhost",
+        "management.health.mail.enabled=false"
 })
 class UmuduguduApplicationTests {
 

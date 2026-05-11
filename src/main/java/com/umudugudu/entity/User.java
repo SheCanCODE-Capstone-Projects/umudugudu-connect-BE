@@ -31,11 +31,6 @@ public class User {
     private boolean enabled;
     private boolean verified = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "isibo_id")
-    private Isibo isibo;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "village_id")
-    private Village village;
+    /** FCM device token registered by the mobile app */
+    private String fcmToken;
 }
