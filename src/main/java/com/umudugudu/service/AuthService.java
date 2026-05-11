@@ -17,6 +17,7 @@ public interface AuthService {
     AuthResponse login(LoginRequest request);
     void resendEmailOtp(String email);
     AuthResponse loginWithPhone(PhoneLoginRequest request);
+    AuthResponse verifyLoginOtp(String email, String code);
 
 }
 
