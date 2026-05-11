@@ -1,51 +1,66 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.ActivityRequest;
+import com.umudugudu.dto.response.ActivityResponse;
+import com.umudugudu.security.UserDetailsServiceImpl;
+import com.umudugudu.service.ActivityService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
-/**
- * Activity management (Umuganda, Imihigo).
- *
- * POST   /api/v1/activities              — create activity (VILLAGE_LEADER)
- * GET    /api/v1/activities              — list village activities (all roles)
- * GET    /api/v1/activities/{id}         — single activity with attendance summary
- * PUT    /api/v1/activities/{id}         — update activity (VILLAGE_LEADER)
- *
- * TODO: Inject ActivityService and implement.
- */
+@Tag(name = "Activities", description = "Village activity management")
 @RestController
 @RequestMapping("/api/v1/activities")
+@RequiredArgsConstructor
 public class ActivityController {
 
+    private final ActivityService  activityService;
+    private final UserDetailsServiceImpl userDetailsService;
+
+    @Operation(summary = "Create a new activity (Village Leader only)")
     @PostMapping
     @PreAuthorize("hasRole('VILLAGE_LEADER')")
-    public ResponseEntity<Map<String, String>> create(@RequestBody Map<String, Object> body) {
-        // TODO: ActivityService.create(request, currentUserId)
-        return ResponseEntity.status(201).body(Map.of("message", "TODO: create activity"));
+    public ResponseEntity<ActivityResponse> create(
+            @Valid @RequestBody ActivityRequest request,
+            @AuthenticationPrincipal UserDetails principal) {
+
+        Long userId = userDetailsService.getUserIdByUsername(principal.getUsername());
+        ActivityResponse response = activityService.create(request, userId);
+        return ResponseEntity.status(201).body(response);
     }
 
+    @Operation(summary = "List all activities (paginated)")
     @GetMapping
-    public ResponseEntity<Map<String, String>> list(
+    public ResponseEntity<Page<ActivityResponse>> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        // TODO: ActivityService.listForVillage(currentUserId, pageable)
-        return ResponseEntity.ok(Map.of("message", "TODO: return paginated activities"));
+
+        return ResponseEntity.ok(activityService.list(PageRequest.of(page, size)));
     }
 
+    @Operation(summary = "Get a single activity by ID")
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, String>> get(@PathVariable String id) {
-        // TODO: ActivityService.getById(id)
-        return ResponseEntity.ok(Map.of("message", "TODO: return activity " + id));
+    public ResponseEntity<ActivityResponse> get(@PathVariable Long id) {
+        return ResponseEntity.ok(activityService.getById(id));
     }
 
+    @Operation(summary = "Update an activity (Village Leader only)")
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('VILLAGE_LEADER')")
-    public ResponseEntity<Map<String, String>> update(@PathVariable String id,
-                                                       @RequestBody Map<String, Object> body) {
-        // TODO: ActivityService.update(id, request)
-        return ResponseEntity.ok(Map.of("message", "TODO: update activity " + id));
+    public ResponseEntity<ActivityResponse> update(
+            @PathVariable Long id,
+            @Valid @RequestBody ActivityRequest request,
+            @AuthenticationPrincipal UserDetails principal) {
+
+        Long userId = userDetailsService.getUserIdByUsername(principal.getUsername());
+        return ResponseEntity.ok(activityService.update(id, request, userId));
     }
 }

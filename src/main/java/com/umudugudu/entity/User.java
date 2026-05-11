@@ -27,4 +27,7 @@ public class User {
 
     private boolean enabled;
     private boolean verified = false;
+
+    /** FCM device token registered by the mobile app */
+    private String fcmToken;
 }

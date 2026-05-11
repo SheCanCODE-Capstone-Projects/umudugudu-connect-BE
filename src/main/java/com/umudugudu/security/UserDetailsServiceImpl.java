@@ -30,4 +30,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }
+
+    /**
+     * Resolve the database User ID from the principal's username (email or phone).
+     */
+    public Long getUserIdByUsername(String username) {
+        return userRepository.findByEmail(username)
+                .or(() -> userRepository.findByPhoneNumber(username))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username))
+                .getId();
+    }
 }
