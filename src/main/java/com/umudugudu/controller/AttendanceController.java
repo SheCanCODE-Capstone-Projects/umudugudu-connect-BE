@@ -1,36 +1,69 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.BulkAttendanceSyncRequest;
+import com.umudugudu.dto.request.MarkAttendanceRequest;
+import com.umudugudu.dto.response.AttendanceResponse;
+import com.umudugudu.entity.User;
+import com.umudugudu.service.AttendanceService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
+import java.util.UUID;
 
-/**
- * Attendance marking and retrieval.
- *
- * POST /api/v1/activities/{id}/attendance — bulk submit attendance (ISIBO_LEADER)
- * GET  /api/v1/activities/{id}/attendance — get attendance records (ISIBO_LEADER+)
- *
- * Supports offline sync: client submits buffered records with synced_offline=true.
- * TODO: Inject AttendanceService and implement.
- */
 @RestController
-@RequestMapping("/api/v1/activities/{activityId}/attendance")
+@RequestMapping("/api/activities/{activityId}/attendance")
+@RequiredArgsConstructor
 public class AttendanceController {
 
+    private final AttendanceService attendanceService;
+
     @PostMapping
-    @PreAuthorize("hasAnyRole('ISIBO_LEADER','VILLAGE_LEADER')")
-    public ResponseEntity<Map<String, String>> submit(@PathVariable String activityId,
-                                                       @RequestBody Map<String, Object> body) {
-        // TODO: AttendanceService.submitBulk(activityId, records, markedBy)
-        return ResponseEntity.status(201).body(Map.of("message", "TODO: save attendance records"));
+    @PreAuthorize("hasRole('ISIBO_LEADER')")
+    public ResponseEntity<AttendanceResponse> markAttendance(
+            @PathVariable UUID activityId,
+            @Valid @RequestBody MarkAttendanceRequest request,
+            @AuthenticationPrincipal User currentUser) {
+
+        return ResponseEntity.ok(
+                attendanceService.markAttendance(activityId, request, currentUser)
+        );
+    }
+
+    @PostMapping("/sync")
+    @PreAuthorize("hasRole('ISIBO_LEADER')")
+    public ResponseEntity<List<AttendanceResponse>> syncOffline(
+            @PathVariable UUID activityId,
+            @Valid @RequestBody BulkAttendanceSyncRequest request,
+            @AuthenticationPrincipal User currentUser) {
+
+        request.setActivityId(activityId);
+        return ResponseEntity.ok(
+                attendanceService.syncOfflineAttendance(request, currentUser)
+        );
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ISIBO_LEADER','VILLAGE_LEADER','ADMIN')")
-    public ResponseEntity<Map<String, String>> get(@PathVariable String activityId) {
-        // TODO: AttendanceService.getByActivity(activityId)
-        return ResponseEntity.ok(Map.of("message", "TODO: return attendance for " + activityId));
+    public ResponseEntity<List<AttendanceResponse>> getAttendance(
+            @PathVariable UUID activityId) {
+
+        return ResponseEntity.ok(
+                attendanceService.getAttendanceForActivity(activityId)
+        );
+    }
+
+    @GetMapping("/absent")
+    @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
+    public ResponseEntity<List<AttendanceResponse>> getAbsentMembers(
+            @PathVariable UUID activityId) {
+
+        return ResponseEntity.ok(
+                attendanceService.getAbsentMembers(activityId)
+        );
     }
 }
