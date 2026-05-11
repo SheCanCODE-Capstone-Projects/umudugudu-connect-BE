@@ -1,10 +1,17 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.CreateActivityRequest;
+import com.umudugudu.entity.Activity;
+import com.umudugudu.service.ActivityService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Activity management (Umuganda, Imihigo).
@@ -18,13 +25,21 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/v1/activities")
+@RequiredArgsConstructor
 public class ActivityController {
-
+    private final ActivityService activityService;
     @PostMapping
     @PreAuthorize("hasRole('VILLAGE_LEADER')")
-    public ResponseEntity<Map<String, String>> create(@RequestBody Map<String, Object> body) {
-        // TODO: ActivityService.create(request, currentUserId)
-        return ResponseEntity.status(201).body(Map.of("message", "TODO: create activity"));
+    public ResponseEntity<Activity> createActivity(
+            @Valid @RequestBody CreateActivityRequest request
+    ) {
+
+        // TODO: later extract from authenticated user
+        UUID leaderId = UUID.randomUUID();
+
+        Activity activity = activityService.createActivity(request, leaderId);
+
+        return new ResponseEntity<>(activity, HttpStatus.CREATED);
     }
 
     @GetMapping
