@@ -13,4 +13,6 @@ public interface AttendanceService {
     List<AttendanceResponse> syncOfflineAttendance(BulkAttendanceSyncRequest request, User isiboLeader);
     List<AttendanceResponse> getAttendanceForActivity(UUID activityId);
     List<AttendanceResponse> getAbsentMembers(UUID activityId);
+    List<AttendanceResponse> getAttendanceForIsibo(UUID isiboId);
+    List<AttendanceResponse> getAttendanceForCitizen(Long citizenId);
 }
