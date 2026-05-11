@@ -1,34 +1,45 @@
 package com.umudugudu.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.UUID;
 
 @Entity
-@Data
 @Table(name = "activities")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Activity {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue
+    private UUID id;
 
+    // Village that owns this activity
+    @Column(name = "village_id", nullable = false)
+    private UUID villageId;
+
+    // Village leader who created it
+    @Column(name = "created_by")
+    private UUID createdBy;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String name;
+    private ActivityType type;
 
-    private String description;
+    @Column(nullable = false, length = 200)
+    private String title;
 
-    @Column(nullable = false)
-    private LocalDateTime activityDate;
+    @Column(name = "scheduled_at", nullable = false)
+    private ZonedDateTime scheduledAt;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String location;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
-
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ActivityStatus status = ActivityStatus.SCHEDULED;
 }

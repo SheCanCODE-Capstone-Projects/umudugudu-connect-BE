@@ -1,13 +1,12 @@
 package com.umudugudu.service;
 
-import com.umudugudu.dto.request.ActivityRequest;
-import com.umudugudu.dto.response.ActivityResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.umudugudu.dto.request.CreateActivityRequest;
+import com.umudugudu.entity.Activity;
+
+import java.util.UUID;
 
 public interface ActivityService {
-    ActivityResponse create(ActivityRequest request, Long creatorId);
-    Page<ActivityResponse> list(Pageable pageable);
-    ActivityResponse getById(Long id);
-    ActivityResponse update(Long id, ActivityRequest request, Long requesterId);
+
+
+    Activity createActivity(CreateActivityRequest request, UUID leaderId);
 }

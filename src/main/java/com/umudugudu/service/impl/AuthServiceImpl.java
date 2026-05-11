@@ -32,42 +32,36 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtils jwtUtils;
     private final SmsService smsService;
     private final EmailService emailService;
+
+    //SEND OTP VIA SMS
     @Override
-
     public void sendOtp(String phone) {
-
         String code = String.valueOf(new Random().nextInt(900000) + 100000);
-
         Otp otp = new Otp();
         otp.setEmail(phone);
         otp.setCode(code);
         otp.setExpiryTime(LocalDateTime.now().plusMinutes(5));
         otp.setAttempts(0);
-
         otpRepository.save(otp);
-
         smsService.sendSms(phone, "Your OTP is " + code);
     }
 
+    // SEND OTP VIA EMAIL
     @Override
     public void sendOtpToEmail(String email) {
-
         String code = String.valueOf(new Random().nextInt(900000) + 100000);
-
         Otp otp = new Otp();
         otp.setEmail(email);
         otp.setCode(code);
         otp.setExpiryTime(LocalDateTime.now().plusMinutes(5));
         otp.setAttempts(0);
-
         otpRepository.save(otp);
-
         emailService.sendOtpEmail(email, code);
     }
 
+    // VERIFY PHONE OTP
     @Override
     public AuthResponse verifyOtp(String phone, String code) {
-
         Otp otp = otpRepository.findTopByPhoneNumberOrderByIdDesc(phone)
                 .orElseThrow(() -> new RuntimeException("OTP not found"));
 
@@ -76,16 +70,10 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!otp.getCode().equals(code)) {
-
             otp.setAttempts(otp.getAttempts() + 1);
             otpRepository.save(otp);
-
             int remaining = 3 - otp.getAttempts();
-
-            if (remaining <= 0) {
-                throw new RuntimeException("Too many attempts. Request new OTP");
-            }
-
+            if (remaining <= 0) throw new RuntimeException("Too many attempts. Request new OTP");
             throw new RuntimeException("Invalid code — " + remaining + " attempts remaining");
         }
 
@@ -98,37 +86,28 @@ public class AuthServiceImpl implements AuthService {
                     return userRepository.save(newUser);
                 });
 
-        String username = user.getEmail() != null
-                ? user.getEmail()
-                : user.getPhoneNumber();
-
+        String username = user.getEmail() != null ? user.getEmail() : user.getPhoneNumber();
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                username,
-                "",
+                username, "",
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
 
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-
         return new AuthResponse(accessToken, refreshToken, "OTP verified", user);
     }
 
+    //REFRESH TOKEN
     @Override
     public AuthResponse refreshToken(String refreshToken) {
-
         String username = jwtUtils.extractUsername(refreshToken);
-
         User user = userRepository.findByEmail(username)
                 .or(() -> userRepository.findByPhoneNumber(username))
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getPhoneNumber(),
-                "",
-                List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(
-                        "ROLE_" + user.getRole().name()
-                ))
+                user.getPhoneNumber(), "",
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
 
         if (!jwtUtils.isTokenValid(refreshToken, userDetails)) {
@@ -136,26 +115,23 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String newAccessToken = jwtUtils.generateAccessToken(userDetails);
-
         return new AuthResponse(newAccessToken, refreshToken, "Token refreshed", user);
     }
+
+    // RESEND EMAIL OTP
     @Override
     @Transactional
     public void resendEmailOtp(String email) {
-
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        if (user.isVerified()) {
-            throw new RuntimeException("Email already verified");
-        }
+        if (user.isVerified()) throw new RuntimeException("Email already verified");
         otpRepository.deleteByEmail(email);
-
         sendOtpToEmail(email);
     }
+
+    //REGISTER
     @Override
     public AuthResponse register(RegisterRequest request) {
-
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
         }
@@ -163,32 +139,27 @@ public class AuthServiceImpl implements AuthService {
                 userRepository.findByPhoneNumber(request.getPhoneNumber()).isPresent()) {
             throw new RuntimeException("Phone number already exists");
         }
+
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setPassword(new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder()
-                .encode(request.getPassword()));
+        user.setPassword(new BCryptPasswordEncoder().encode(request.getPassword()));
         user.setRole(Role.CITIZEN);
-
         user.setEnabled(false);
         user.setVerified(false);
-
         userRepository.save(user);
 
         sendOtpToEmail(user.getEmail());
 
-        return new AuthResponse(
-                null,
-                null,
-                "OTP sent to email. Please verify before login.",
-                user
-        );
+        return new AuthResponse(null, null,
+                "OTP sent to email. Please verify before login.", user);
     }
+
+    //VERIFY EMAIL OTP (registration)
     @Override
     public String verifyEmailOtp(String email, String code) {
-
         Otp otp = otpRepository.findTopByEmailOrderByIdDesc(email)
                 .orElseThrow(() -> new RuntimeException("OTP not found"));
 
@@ -197,36 +168,30 @@ public class AuthServiceImpl implements AuthService {
         }
 
         if (!otp.getCode().equals(code.trim())) {
-
             otp.setAttempts(otp.getAttempts() + 1);
             otpRepository.save(otp);
-
             int remaining = 3 - otp.getAttempts();
-
-            if (remaining <= 0) {
-                throw new RuntimeException("Too many attempts. Please request a new OTP");
-            }
-
+            if (remaining <= 0) throw new RuntimeException("Too many attempts. Please request a new OTP");
             throw new RuntimeException("Invalid OTP — " + remaining + " attempt(s) remaining");
         }
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
         user.setVerified(true);
         user.setEnabled(true);
         userRepository.save(user);
 
         return "Email verified successfully";
     }
+
+    //LOGIN WITH EMAIL
     @Override
     public AuthResponse login(LoginRequest request) {
-
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder encoder =
-                new org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder();
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
         if (!user.isVerified()) {
             throw new RuntimeException("Please verify your email first");
         }
@@ -235,22 +200,62 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
+        // ISIBO_LEADER, VILLAGE_LEADER, ADMIN
+        if (requiresLoginOtp(user.getRole())) {
+            otpRepository.deleteByEmail(user.getEmail());
+            sendOtpToEmail(user.getEmail());
+            return new AuthResponse(
+                    null, null,
+                    "OTP sent to your email. Please verify to complete login.",
+                    user
+            );
+        }
+
+        // CITIZEN
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
-                user.getPassword(),
-                List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority(
-                        "ROLE_" + user.getRole().name()
-                ))
+                user.getEmail(), user.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
 
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-
         return new AuthResponse(accessToken, refreshToken, "Login successful", user);
     }
+
+    // VERIFY LOGIN OTP (for leaders & admin only)
+    @Override
+    public AuthResponse verifyLoginOtp(String email, String code) {
+        Otp otp = otpRepository.findTopByEmailOrderByIdDesc(email)
+                .orElseThrow(() -> new RuntimeException("OTP not found. Please login again."));
+
+        if (LocalDateTime.now().isAfter(otp.getExpiryTime())) {
+            throw new RuntimeException("OTP expired. Please login again.");
+        }
+
+        if (!otp.getCode().equals(code.trim())) {
+            otp.setAttempts(otp.getAttempts() + 1);
+            otpRepository.save(otp);
+            int remaining = 3 - otp.getAttempts();
+            if (remaining <= 0) throw new RuntimeException("Too many attempts. Please login again.");
+            throw new RuntimeException("Invalid OTP — " + remaining + " attempt(s) remaining");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                user.getEmail(), user.getPassword(),
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
+        );
+
+        String accessToken = jwtUtils.generateAccessToken(userDetails);
+        String refreshToken = jwtUtils.generateRefreshToken(userDetails);
+        return new AuthResponse(accessToken, refreshToken, "Login successful", user);
+    }
+
+    // LOGIN WITH PHONE
     @Override
     public AuthResponse loginWithPhone(PhoneLoginRequest request) {
-
         User user = userRepository.findByPhoneNumber(request.getPhoneNumber())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -265,14 +270,19 @@ public class AuthServiceImpl implements AuthService {
         }
 
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
-                user.getPhoneNumber(),
-                user.getPassword(),
+                user.getPhoneNumber(), user.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
 
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-
         return new AuthResponse(accessToken, refreshToken, "Phone login successful", user);
+    }
+
+    //PRIVATE HELPER
+    private boolean requiresLoginOtp(Role role) {
+        return role == Role.ISIBO_LEADER
+                || role == Role.VILLAGE_LEADER
+                || role == Role.ADMIN;
     }
 }

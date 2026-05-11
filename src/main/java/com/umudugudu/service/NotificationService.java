@@ -1,14 +1,13 @@
 package com.umudugudu.service;
 
-import com.umudugudu.dto.response.NotificationResponse;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.umudugudu.entity.Activity;
+import org.springframework.stereotype.Service;
 
-public interface NotificationService {
+@Service
+public interface NotificationService  {
+    void notifyVillage(Activity activity);
 
-    /** Return paginated notifications for the given user. */
-    Page<NotificationResponse> getMyNotifications(Long userId, Pageable pageable);
+    void sendPushNotification(Activity activity);
 
-    /** Mark a single notification as read. */
-    void markRead(Long notificationId, Long userId);
+    void sendSmsNotification(Activity activity);
 }

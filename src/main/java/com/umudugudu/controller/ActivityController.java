@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ActivityController {
 
-    private final ActivityService  activityService;
+    private final ActivityService        activityService;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Operation(summary = "Create a new activity (Village Leader only)")

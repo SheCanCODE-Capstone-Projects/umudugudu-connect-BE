@@ -99,7 +99,12 @@ public class AuthController {
         AuthResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
-
+    //VERIFY LOGIN OTP (leaders & admin only)
+    @PostMapping("/login/verify-otp")
+    public ResponseEntity<?> verifyLoginOtp(@RequestBody OtpVerifyRequestEmail request) {
+        AuthResponse response = authService.verifyLoginOtp(request.getEmail(), request.getOtp());
+        return ResponseEntity.ok(response);
+    }
     @PostMapping("/login/phone")
     public ResponseEntity<AuthResponse> loginWithPhone(
             @RequestBody PhoneLoginRequest request) {

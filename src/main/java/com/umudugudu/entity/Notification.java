@@ -2,7 +2,6 @@ package com.umudugudu.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -14,21 +13,23 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String title;
-
-    @Column(nullable = false)
-    private String body;
-
-    /** Deep-link for the mobile app, e.g. "activity/42" */
-    private String deepLink;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "recipient_id", nullable = false)
     private User recipient;
 
+    private String message;
+
     private boolean read = false;
 
-    @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    // Optional link to the change request
+    @ManyToOne
+    @JoinColumn(name = "change_request_id")
+    private ProfileChangeRequest changeRequest;
+
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 }
