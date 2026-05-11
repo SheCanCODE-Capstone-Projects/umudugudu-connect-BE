@@ -113,6 +113,17 @@ public class AttendanceServiceImpl implements AttendanceService {
             throw new RuntimeException("Activity has not started yet.");
         }
     }
+    @Override
+    public List<AttendanceResponse> getAttendanceForIsibo(UUID isiboId) {
+        return attendanceRepository.findByCitizen_Isibo_Id(isiboId)
+                .stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<AttendanceResponse> getAttendanceForCitizen(Long citizenId) {
+        return attendanceRepository.findByCitizen_Id(citizenId)
+                .stream().map(this::toResponse).collect(Collectors.toList());
+    }
 
     private AttendanceResponse toResponse(Attendance a) {
         AttendanceResponse r = new AttendanceResponse();
