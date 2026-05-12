@@ -70,5 +70,20 @@ public class AdminServiceImpl implements AdminService {
 
         return "User " + email + " assigned as village leader for village " + village.getName();
     }
+    public String createVillage(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return "Village name is required";
+        }
+
+        if (villageRepository.existsByName(name)) {
+            return "Village with name '" + name + "' already exists";
+        }
+
+        Village village = new Village();
+        village.setName(name);
+        villageRepository.save(village);
+
+        return "Village '" + name + "' created successfully";
+    }
 }
 

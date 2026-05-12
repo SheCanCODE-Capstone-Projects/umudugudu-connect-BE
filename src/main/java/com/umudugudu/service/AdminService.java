@@ -11,4 +11,5 @@ public interface AdminService {
     UserResponseDTO findUserByEmail(String email);
 
     String assignVillageLeader(String email, UUID villageId);
+    String createVillage(String name);
 }
