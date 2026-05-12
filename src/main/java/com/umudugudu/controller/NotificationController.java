@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/notifications")
@@ -24,13 +25,13 @@ public class NotificationController {
     @PreAuthorize("hasAnyRole('VILLAGE_LEADER', 'ISIBO_LEADER', 'CITIZEN')")
     public ResponseEntity<List<Notification>> getMyNotifications(
             @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = extractUserId(userDetails);
+        UUID userId = extractUserId(userDetails);
         return ResponseEntity.ok(profileService.getUnreadNotifications(userId));
     }
 
     @PutMapping("/{id}/read")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<Void> markRead(@PathVariable Long id) {
+    public ResponseEntity<Void> markRead(@PathVariable UUID id) {
         profileService.markNotificationRead(id);
         return ResponseEntity.noContent().build();
     }
@@ -42,7 +43,7 @@ public class NotificationController {
 //        return ResponseEntity.status(501).body("Announcement feature not yet implemented.");
 //    }
 
-    private Long extractUserId(UserDetails userDetails) {
+    private UUID extractUserId(UserDetails userDetails) {
         if (userDetails instanceof com.umudugudu.entity.User user) {
             return user.getId();
         }

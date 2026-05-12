@@ -12,17 +12,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.UUID;
-
-/**
- * Activity management (Umuganda, Imihigo).
- *
- * POST   /api/v1/activities              — create activity (VILLAGE_LEADER)
- * GET    /api/v1/activities              — list village activities (all roles)
- * GET    /api/v1/activities/{id}         — single activity with attendance summary
- * PUT    /api/v1/activities/{id}         — update activity (VILLAGE_LEADER)
- *
- * TODO: Inject ActivityService and implement.
- */
 @RestController
 @RequestMapping("/api/v1/activities")
 @RequiredArgsConstructor

@@ -14,12 +14,12 @@ public class DataSeeder {
     CommandLineRunner init(UserRepository repo, PasswordEncoder encoder) {
         return args -> {
 
-            if (!repo.existsByEmail("admin@gmail.com")) {
+            if (!repo.existsByEmail("celienishimwe@gmail.com")) {
 
                 User admin = new User();
                 admin.setFirstName("System");
                 admin.setLastName("Admin");
-                admin.setEmail("admin@gmail.com");
+                admin.setEmail("celienishimwe@gmail.com");
                 admin.setPassword(encoder.encode("1234"));
                 admin.setRole(Role.ADMIN);
                 admin.setEnabled(true);

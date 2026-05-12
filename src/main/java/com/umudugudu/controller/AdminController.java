@@ -1,5 +1,7 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.AssignVillageLeaderRequest;
+import com.umudugudu.dto.request.CreateVillageRequest;
 import com.umudugudu.dto.request.UpdateRoleRequest;
 import com.umudugudu.dto.response.UserResponseDTO;
 import com.umudugudu.repository.UserRepository;
@@ -82,4 +84,15 @@ public class AdminController {
             @RequestParam(required = false) String action) {
         return ResponseEntity.ok(Map.of("message", "TODO: return paginated audit logs"));
     }
+    @PutMapping("/users/assign-village-leader")
+    public ResponseEntity<?> assignVillageLeader(@RequestBody AssignVillageLeaderRequest request) {
+        String message = adminService.assignVillageLeader(request.getEmail(), request.getVillageId());
+        return ResponseEntity.ok(Map.of("message", message));
+    }
+    @PostMapping("/villages")
+    public ResponseEntity<?> createVillage(@RequestBody CreateVillageRequest request) {
+        String message = adminService.createVillage(request.getName());
+        return ResponseEntity.ok(Map.of("message", message));
+    }
+
 }

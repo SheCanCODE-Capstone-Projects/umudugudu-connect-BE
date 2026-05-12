@@ -1,23 +1,39 @@
 package com.umudugudu.dto.response;
 
-import com.umudugudu.entity.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthResponse {
 
     private String accessToken;
     private String refreshToken;
     private String message;
-    private User user;
+    private UserDto user;
 
-    public AuthResponse(String accessToken, String refreshToken, String message, User user) {
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-        this.message = message;
-        this.user = user;
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserDto {
+        private UUID id;
+        private String firstName;
+        private String lastName;
+        private String email;
+        private String phoneNumber;
+        private String role;
+        private boolean enabled;
+        private boolean verified;
+        private UUID isiboId;
+        private String isiboName;
+        private UUID villageId;
+        private String villageName;
     }
-
-    public String getAccessToken() { return accessToken; }
-    public String getRefreshToken() { return refreshToken; }
-    public String getMessage() { return message; }
-    public User getUser() { return user; }
 }

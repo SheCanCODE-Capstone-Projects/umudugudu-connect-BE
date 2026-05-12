@@ -1,53 +1,66 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.ReviewPenaltyRequest;
+import com.umudugudu.dto.response.PenaltyFlagResponse;
+import com.umudugudu.entity.User;
+import com.umudugudu.service.PenaltyFlagService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
+import java.util.UUID;
 
-/**
- * Penalty assignment and retrieval.
- *
- * POST /api/v1/penalties             — assign penalty (VILLAGE_LEADER)
- * GET  /api/v1/penalties/my          — citizen's own penalties
- * GET  /api/v1/penalties/village     — all village penalties (VILLAGE_LEADER)
- * GET  /api/v1/penalties/isibo       — isibo penalties (ISIBO_LEADER)
- * PUT  /api/v1/penalties/{id}/waive  — waive penalty (VILLAGE_LEADER)
- *
- * TODO: Inject PenaltyService and implement.
- */
 @RestController
-@RequestMapping("/api/v1/penalties")
+@RequestMapping("/api")
+@RequiredArgsConstructor
 public class PenaltyController {
 
-    @PostMapping
-    @PreAuthorize("hasRole('VILLAGE_LEADER')")
-    public ResponseEntity<Map<String, String>> assign(@RequestBody Map<String, Object> body) {
-        return ResponseEntity.status(201).body(Map.of("message", "TODO: assign penalty"));
-    }
+    private final PenaltyFlagService penaltyFlagService;
 
-    @GetMapping("/my")
-    public ResponseEntity<Map<String, String>> myPenalties() {
-        return ResponseEntity.ok(Map.of("message", "TODO: return citizen penalties"));
-    }
 
-    @GetMapping("/village")
+    @GetMapping("/activities/{activityId}/penalties")
     @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
-    public ResponseEntity<Map<String, String>> villagePenalties() {
-        return ResponseEntity.ok(Map.of("message", "TODO: return all village penalties"));
+    public ResponseEntity<List<PenaltyFlagResponse>> getFlagsForActivity(
+            @PathVariable UUID activityId) {
+
+        return ResponseEntity.ok(
+                penaltyFlagService.getFlagsForActivity(activityId)
+        );
     }
 
-    @GetMapping("/isibo")
-    @PreAuthorize("hasAnyRole('ISIBO_LEADER','VILLAGE_LEADER')")
-    public ResponseEntity<Map<String, String>> isiboPenalties() {
-        return ResponseEntity.ok(Map.of("message", "TODO: return isibo penalties"));
+    @GetMapping("/activities/{activityId}/penalties/pending")
+    @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
+    public ResponseEntity<List<PenaltyFlagResponse>> getPendingFlags(
+            @PathVariable UUID activityId) {
+
+        return ResponseEntity.ok(
+                penaltyFlagService.getPendingFlagsForActivity(activityId)
+        );
     }
 
-    @PutMapping("/{id}/waive")
-    @PreAuthorize("hasRole('VILLAGE_LEADER')")
-    public ResponseEntity<Map<String, String>> waive(@PathVariable String id,
-                                                      @RequestBody Map<String, String> body) {
-        return ResponseEntity.ok(Map.of("message", "TODO: waive penalty " + id));
+    @GetMapping("/citizens/{citizenId}/penalties")
+    @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
+    public ResponseEntity<List<PenaltyFlagResponse>> getFlagsForCitizen(
+            @PathVariable UUID citizenId) {
+
+        return ResponseEntity.ok(
+                penaltyFlagService.getFlagsForCitizen(citizenId)
+        );
+    }
+
+    @PatchMapping("/penalties/{flagId}/review")
+    @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
+    public ResponseEntity<PenaltyFlagResponse> reviewPenalty(
+            @PathVariable UUID flagId,
+            @Valid @RequestBody ReviewPenaltyRequest request,
+            @AuthenticationPrincipal User currentUser) {
+
+        return ResponseEntity.ok(
+                penaltyFlagService.reviewPenalty(flagId, request, currentUser)
+        );
     }
 }
