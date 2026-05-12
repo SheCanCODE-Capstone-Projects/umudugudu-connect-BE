@@ -13,7 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.UUID;
 import java.util.List;
 
 @RestController
@@ -28,7 +28,7 @@ public class ProfileController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ProfileResponse> getProfile(
             @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = extractUserId(userDetails);
+        UUID userId = extractUserId(userDetails);
         return ResponseEntity.ok(profileService.getProfile(userId));
     }
 
@@ -37,7 +37,7 @@ public class ProfileController {
     public ResponseEntity<ChangeRequestResponse> submitChangeRequest(
             @AuthenticationPrincipal UserDetails userDetails,
             @RequestBody ProfileChangeRequestDto dto) {
-        Long userId = extractUserId(userDetails);
+        UUID userId = extractUserId(userDetails);
         return ResponseEntity.ok(profileService.submitChangeRequest(userId, dto));
     }
 
@@ -45,7 +45,7 @@ public class ProfileController {
     @PreAuthorize("hasRole('CITIZEN')")
     public ResponseEntity<List<ChangeRequestResponse>> getMyRequests(
             @AuthenticationPrincipal UserDetails userDetails) {
-        Long userId = extractUserId(userDetails);
+        UUID userId = extractUserId(userDetails);
         return ResponseEntity.ok(profileService.getMyRequests(userId));
     }
 
@@ -58,12 +58,12 @@ public class ProfileController {
     @PutMapping("/change-request/{id}/review")
     @PreAuthorize("hasRole('VILLAGE_LEADER')")
     public ResponseEntity<ChangeRequestResponse> reviewRequest(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody ReviewChangeRequestDto dto) {
         return ResponseEntity.ok(profileService.reviewChangeRequest(id, dto));
     }
 
-    private Long extractUserId(UserDetails userDetails) {
+    private UUID extractUserId(UserDetails userDetails) {
         if (userDetails instanceof com.umudugudu.entity.User user) {
             return user.getId();
         }

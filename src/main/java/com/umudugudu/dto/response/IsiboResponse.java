@@ -3,14 +3,15 @@ package com.umudugudu.dto.response;
 import lombok.Builder;
 import lombok.Data;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
 public class IsiboResponse {
-    private Long id;
+    private UUID id;
     private String name;
     private String villageName;
-    private Long villageId;
+    private UUID villageId;
     private LeaderInfo leader;
     private List<MemberInfo> members;
     private int memberCount;
@@ -18,7 +19,7 @@ public class IsiboResponse {
     @Data
     @Builder
     public static class LeaderInfo {
-        private Long id;
+        private UUID id;
         private String fullName;
         private String email;
         private String phoneNumber;
@@ -27,7 +28,7 @@ public class IsiboResponse {
     @Data
     @Builder
     public static class MemberInfo {
-        private Long id;
+        private UUID id;
         private String fullName;
         private String email;
         private String phoneNumber;

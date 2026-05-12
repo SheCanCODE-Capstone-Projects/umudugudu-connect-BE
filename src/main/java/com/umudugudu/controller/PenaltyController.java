@@ -45,7 +45,7 @@ public class PenaltyController {
     @GetMapping("/citizens/{citizenId}/penalties")
     @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
     public ResponseEntity<List<PenaltyFlagResponse>> getFlagsForCitizen(
-            @PathVariable Long citizenId) {
+            @PathVariable UUID citizenId) {
 
         return ResponseEntity.ok(
                 penaltyFlagService.getFlagsForCitizen(citizenId)
@@ -55,7 +55,7 @@ public class PenaltyController {
     @PatchMapping("/penalties/{flagId}/review")
     @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
     public ResponseEntity<PenaltyFlagResponse> reviewPenalty(
-            @PathVariable Long flagId,
+            @PathVariable UUID flagId,
             @Valid @RequestBody ReviewPenaltyRequest request,
             @AuthenticationPrincipal User currentUser) {
 

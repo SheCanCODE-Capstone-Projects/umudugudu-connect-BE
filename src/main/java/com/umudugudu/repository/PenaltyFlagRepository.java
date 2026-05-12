@@ -10,9 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface PenaltyFlagRepository extends JpaRepository<PenaltyFlag, Long> {
+public interface PenaltyFlagRepository extends JpaRepository<PenaltyFlag, UUID> {
     List<PenaltyFlag> findByActivityId(UUID activityId);
     List<PenaltyFlag> findByActivityIdAndStatus(UUID activityId, PenaltyStatus status);
-    List<PenaltyFlag> findByCitizenId(Long citizenId);
-    Optional<PenaltyFlag> findByActivityIdAndCitizenId(UUID activityId, Long citizenId);
+    List<PenaltyFlag> findByCitizenId(UUID citizenId);
+    Optional<PenaltyFlag> findByActivityIdAndCitizenId(UUID activityId, UUID citizenId);
 }

@@ -11,6 +11,7 @@ import com.umudugudu.dto.response.ProfileResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,7 +25,7 @@ public class ProfileService {
 
     //VIEW PROFILE
 
-    public ProfileResponse getProfile(Long userId) {
+    public ProfileResponse getProfile(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -43,7 +44,7 @@ public class ProfileService {
     //SUBMIT CHANGE REQUEST
 
     @Transactional
-    public ChangeRequestResponse submitChangeRequest(Long userId, ProfileChangeRequestDto dto) {
+    public ChangeRequestResponse submitChangeRequest(UUID userId, ProfileChangeRequestDto dto) {
         User requester = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -80,7 +81,7 @@ public class ProfileService {
     //VILLAGE LEADER: APPROVE OR REJECT
 
     @Transactional
-    public ChangeRequestResponse reviewChangeRequest(Long requestId, ReviewChangeRequestDto dto) {
+    public ChangeRequestResponse reviewChangeRequest(UUID requestId, ReviewChangeRequestDto dto) {
         ProfileChangeRequest request = changeRequestRepository.findById(requestId)
                 .orElseThrow(() -> new RuntimeException("Change request not found"));
 
@@ -110,7 +111,7 @@ public class ProfileService {
 
     //CITIZEN: VIEW OWN REQUESTS
 
-    public List<ChangeRequestResponse> getMyRequests(Long userId) {
+    public List<ChangeRequestResponse> getMyRequests(UUID userId) {
         return changeRequestRepository.findByRequesterId(userId)
                 .stream()
                 .map(this::toChangeRequestResponse)
@@ -119,12 +120,12 @@ public class ProfileService {
 
     // VILLAGE LEADER: GET UNREAD NOTIFICATIONS
 
-    public List<Notification> getUnreadNotifications(Long userId) {
+    public List<Notification> getUnreadNotifications(UUID userId) {
         return notificationRepository.findByRecipientIdAndReadFalse(userId);
     }
 
     @Transactional
-    public void markNotificationRead(Long notificationId) {
+    public void markNotificationRead(UUID notificationId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notification not found"));
         notification.setRead(true);

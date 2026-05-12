@@ -1,8 +1,11 @@
 package com.umudugudu.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Entity
 @Data
@@ -10,8 +13,8 @@ import lombok.Data;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     private String firstName;
     private String lastName;
@@ -33,9 +36,12 @@ public class User {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "isibo_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "citizens", "village", "isiboLeader"})
     private Isibo isibo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "village_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "isibos", "villageLeader"})
     private Village village;
+
 }

@@ -84,7 +84,7 @@ public class AttendanceController {
     @GetMapping("/api/isibos/{isiboId}/attendance")
     @PreAuthorize("hasAnyRole('ISIBO_LEADER','VILLAGE_LEADER','ADMIN')")
     public ResponseEntity<List<AttendanceResponse>> getAttendanceForIsibo(
-            @PathVariable long isiboId) {
+            @PathVariable UUID isiboId) {
 
         return ResponseEntity.ok(
                 attendanceService.getAttendanceForIsibo(isiboId)
@@ -94,7 +94,7 @@ public class AttendanceController {
     @GetMapping("/api/citizens/{citizenId}/attendance")
     @PreAuthorize("hasAnyRole('CITIZEN','ISIBO_LEADER','VILLAGE_LEADER','ADMIN')")
     public ResponseEntity<List<AttendanceResponse>> getAttendanceForCitizen(
-            @PathVariable Long citizenId) {
+            @PathVariable UUID citizenId) {
 
         return ResponseEntity.ok(
                 attendanceService.getAttendanceForCitizen(citizenId)

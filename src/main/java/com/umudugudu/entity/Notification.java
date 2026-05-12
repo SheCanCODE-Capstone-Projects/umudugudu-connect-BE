@@ -3,6 +3,7 @@ package com.umudugudu.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Data
@@ -10,8 +11,8 @@ import java.time.LocalDateTime;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "recipient_id", nullable = false)

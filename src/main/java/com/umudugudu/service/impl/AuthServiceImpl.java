@@ -12,6 +12,7 @@ import com.umudugudu.repository.UserRepository;
 import com.umudugudu.security.JwtUtils;
 import com.umudugudu.service.AuthService;
 import com.umudugudu.util.SmsService;
+import com.umudugudu.Mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
     private final SmsService smsService;
     private final EmailService emailService;
 
-    //SEND OTP VIA SMS
+    // SEND OTP VIA SMS
     @Override
     public void sendOtp(String phone) {
         String code = String.valueOf(new Random().nextInt(900000) + 100000);
@@ -94,10 +95,16 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-        return new AuthResponse(accessToken, refreshToken, "OTP verified", user);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .message("OTP verified")
+                .user(UserMapper.toDto(user))
+                .build();
     }
 
-    //REFRESH TOKEN
+    // REFRESH TOKEN
     @Override
     public AuthResponse refreshToken(String refreshToken) {
         String username = jwtUtils.extractUsername(refreshToken);
@@ -115,7 +122,13 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String newAccessToken = jwtUtils.generateAccessToken(userDetails);
-        return new AuthResponse(newAccessToken, refreshToken, "Token refreshed", user);
+
+        return AuthResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(refreshToken)
+                .message("Token refreshed")
+                .user(UserMapper.toDto(user))
+                .build();
     }
 
     // RESEND EMAIL OTP
@@ -129,7 +142,7 @@ public class AuthServiceImpl implements AuthService {
         sendOtpToEmail(email);
     }
 
-    //REGISTER
+    // REGISTER
     @Override
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -153,11 +166,15 @@ public class AuthServiceImpl implements AuthService {
 
         sendOtpToEmail(user.getEmail());
 
-        return new AuthResponse(null, null,
-                "OTP sent to email. Please verify before login.", user);
+        return AuthResponse.builder()
+                .accessToken(null)
+                .refreshToken(null)
+                .message("OTP sent to email. Please verify before login.")
+                .user(UserMapper.toDto(user))
+                .build();
     }
 
-    //VERIFY EMAIL OTP (registration)
+    // VERIFY EMAIL OTP (registration)
     @Override
     public String verifyEmailOtp(String email, String code) {
         Otp otp = otpRepository.findTopByEmailOrderByIdDesc(email)
@@ -184,7 +201,7 @@ public class AuthServiceImpl implements AuthService {
         return "Email verified successfully";
     }
 
-    //LOGIN WITH EMAIL
+    // LOGIN WITH EMAIL
     @Override
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
@@ -200,18 +217,17 @@ public class AuthServiceImpl implements AuthService {
             throw new RuntimeException("Invalid credentials");
         }
 
-        // ISIBO_LEADER, VILLAGE_LEADER, ADMIN
         if (requiresLoginOtp(user.getRole())) {
             otpRepository.deleteByEmail(user.getEmail());
             sendOtpToEmail(user.getEmail());
-            return new AuthResponse(
-                    null, null,
-                    "OTP sent to your email. Please verify to complete login.",
-                    user
-            );
+            return AuthResponse.builder()
+                    .accessToken(null)
+                    .refreshToken(null)
+                    .message("OTP sent to your email. Please verify to complete login.")
+                    .user(UserMapper.toDto(user))
+                    .build();
         }
 
-        // CITIZEN
         UserDetails userDetails = new org.springframework.security.core.userdetails.User(
                 user.getEmail(), user.getPassword(),
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
@@ -219,7 +235,13 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-        return new AuthResponse(accessToken, refreshToken, "Login successful", user);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .message("Login successful")
+                .user(UserMapper.toDto(user))
+                .build();
     }
 
     // VERIFY LOGIN OTP (for leaders & admin only)
@@ -250,7 +272,13 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-        return new AuthResponse(accessToken, refreshToken, "Login successful", user);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .message("Login successful")
+                .user(UserMapper.toDto(user))
+                .build();
     }
 
     // LOGIN WITH PHONE
@@ -276,10 +304,16 @@ public class AuthServiceImpl implements AuthService {
 
         String accessToken = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
-        return new AuthResponse(accessToken, refreshToken, "Phone login successful", user);
+
+        return AuthResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .message("Phone login successful")
+                .user(UserMapper.toDto(user))
+                .build();
     }
 
-    //PRIVATE HELPER
+    // PRIVATE HELPER
     private boolean requiresLoginOtp(Role role) {
         return role == Role.ISIBO_LEADER
                 || role == Role.VILLAGE_LEADER

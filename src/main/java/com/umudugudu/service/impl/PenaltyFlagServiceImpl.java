@@ -26,7 +26,7 @@ public class PenaltyFlagServiceImpl implements PenaltyFlagService {
     @Transactional
     public void handleAttendanceStatus(Attendance attendance) {
         UUID activityId = attendance.getActivityId();
-        Long citizenId  = attendance.getCitizen().getId();
+        UUID citizenId  = attendance.getCitizen().getId();
 
         if (attendance.getStatus() == AttendanceStatus.ABSENT) {
 
@@ -60,7 +60,7 @@ public class PenaltyFlagServiceImpl implements PenaltyFlagService {
 
     @Override
     @Transactional
-    public PenaltyFlagResponse reviewPenalty(Long flagId,
+    public PenaltyFlagResponse reviewPenalty(UUID flagId,
                                              ReviewPenaltyRequest request,
                                              User villageLeader) {
 
@@ -103,7 +103,7 @@ public class PenaltyFlagServiceImpl implements PenaltyFlagService {
     }
 
     @Override
-    public List<PenaltyFlagResponse> getFlagsForCitizen(Long citizenId) {
+    public List<PenaltyFlagResponse> getFlagsForCitizen(UUID citizenId) {
         return penaltyFlagRepository.findByCitizenId(citizenId)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
