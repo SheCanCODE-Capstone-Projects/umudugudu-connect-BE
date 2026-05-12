@@ -71,4 +71,15 @@ public class IsiboManagementController {
     public ResponseEntity<?> promoteToIsiboLeader(@PathVariable UUID userId) {
         return ResponseEntity.ok(Map.of("message", service.promoteCitizenToIsiboLeader(userId)));
     }
+    // Add single citizen to village
+    @PutMapping("/citizens-village/{userId}")
+    public ResponseEntity<?> addCitizenToVillage(@PathVariable UUID userId) {
+        return ResponseEntity.ok(Map.of("message", service.addCitizenToVillage(userId)));
+    }
+
+    // Add multiple citizens to village at once
+    @PutMapping("/citizens-village")
+    public ResponseEntity<?> addCitizensToVillage(@RequestBody AssignMembersRequest request) {
+        return ResponseEntity.ok(Map.of("message", service.addCitizensToVillage(request.getMemberIds())));
+    }
 }
