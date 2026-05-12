@@ -43,4 +43,5 @@ public class User {
     @JoinColumn(name = "village_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "isibos", "villageLeader"})
     private Village village;
+
 }

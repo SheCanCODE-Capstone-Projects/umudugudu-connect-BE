@@ -1,5 +1,6 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.AssignVillageLeaderRequest;
 import com.umudugudu.dto.request.UpdateRoleRequest;
 import com.umudugudu.dto.response.UserResponseDTO;
 import com.umudugudu.repository.UserRepository;
