@@ -1,4 +1,4 @@
-package com.umudugudu.service;
+package com.umudugudu.service.impl;
 
 import com.umudugudu.dto.request.AssignMembersRequest;
 import com.umudugudu.dto.request.CreateIsiboRequest;
