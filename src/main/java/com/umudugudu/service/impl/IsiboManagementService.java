@@ -228,4 +228,23 @@ public class IsiboManagementService {
 
         return toResponse(isibo);
     }
+    @Transactional
+    public String promoteCitizenToIsiboLeader(UUID userId) {
+        User villageLeader = getAuthenticatedVillageLeader();
+        Village village = villageLeader.getVillage();
+
+        User citizen = userRepository.findByIdAndVillage(userId, village)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found or does not belong to your village"));
+
+        if (citizen.getRole() == Role.ISIBO_LEADER) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT, "User is already an isibo leader");
+        }
+
+        citizen.setRole(Role.ISIBO_LEADER);
+        userRepository.save(citizen);
+
+        return citizen.getFirstName() + " " + citizen.getLastName() + " promoted to ISIBO_LEADER";
+    }
 }
