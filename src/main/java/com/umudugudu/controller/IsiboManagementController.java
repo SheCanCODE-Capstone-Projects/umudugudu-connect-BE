@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -65,5 +66,9 @@ public class IsiboManagementController {
     @GetMapping("/unassigned-members")
     public ResponseEntity<List<IsiboResponse.MemberInfo>> getUnassigned() {
         return ResponseEntity.ok(service.getUnassignedMembers());
+    }
+    @PutMapping("/citizens/{userId}/promote")
+    public ResponseEntity<?> promoteToIsiboLeader(@PathVariable UUID userId) {
+        return ResponseEntity.ok(Map.of("message", service.promoteCitizenToIsiboLeader(userId)));
     }
 }
