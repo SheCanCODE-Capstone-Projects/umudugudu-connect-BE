@@ -247,4 +247,53 @@ public class IsiboManagementService {
 
         return citizen.getFirstName() + " " + citizen.getLastName() + " promoted to ISIBO_LEADER";
     }
+    @Transactional
+    public String addCitizenToVillage(UUID userId) {
+        User villageLeader = getAuthenticatedVillageLeader();
+        Village village = villageLeader.getVillage();
+
+        User citizen = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "User not found"));
+
+        if (citizen.getVillage() != null) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "User already belongs to village: " + citizen.getVillage().getName());
+        }
+
+        citizen.setVillage(village);
+        citizen.setRole(Role.CITIZEN);
+        userRepository.save(citizen);
+
+        return citizen.getFirstName() + " " + citizen.getLastName()
+                + " added to village '" + village.getName() + "' as CITIZEN";
+    }
+
+    // Add multiple citizens at once
+    @Transactional
+    public String addCitizensToVillage(List<UUID> userIds) {
+        User villageLeader = getAuthenticatedVillageLeader();
+        Village village = villageLeader.getVillage();
+
+        List<User> users = userRepository.findAllById(userIds);
+
+        if (users.size() != userIds.size()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST, "Some user IDs were not found");
+        }
+
+        users.forEach(citizen -> {
+            if (citizen.getVillage() != null) {
+                throw new ResponseStatusException(
+                        HttpStatus.CONFLICT,
+                        citizen.getFirstName() + " already belongs to a village");
+            }
+            citizen.setVillage(village);
+            citizen.setRole(Role.CITIZEN);
+        });
+
+        userRepository.saveAll(users);
+        return users.size() + " citizen(s) added to village '" + village.getName() + "'";
+    }
 }
