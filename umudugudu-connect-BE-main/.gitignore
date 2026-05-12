@@ -1,0 +1,31 @@
+# Environment files
+.env
+
+# Maven target folder
+target/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-compose.override.yml
+
+# Weka files outside project
+../wekafiles/
+
+# Java compiled files
+*.class
+
+# Package files
+*.jar
+*.war
+*.ear
