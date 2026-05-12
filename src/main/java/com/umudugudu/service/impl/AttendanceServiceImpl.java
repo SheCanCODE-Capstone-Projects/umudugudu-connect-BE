@@ -114,7 +114,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
     }
     @Override
-    public List<AttendanceResponse> getAttendanceForIsibo(UUID isiboId) {
+    public List<AttendanceResponse> getAttendanceForIsibo(long isiboId) {
         return attendanceRepository.findByCitizen_Isibo_Id(isiboId)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
