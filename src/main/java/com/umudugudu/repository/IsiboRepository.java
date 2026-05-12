@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface IsiboRepository extends JpaRepository<Isibo, Long> {
+public interface IsiboRepository extends JpaRepository<Isibo, UUID> {
     List<Isibo> findByVillage(Village village);
     boolean existsByNameAndVillage(String name, Village village);
-    Optional<Isibo> findByIdAndVillage(Long id, Village village);
+    Optional<Isibo> findByIdAndVillage(UUID id, Village village);
 }

@@ -9,11 +9,11 @@ import java.util.UUID;
 @Data
 public class PenaltyFlagResponse {
 
-    private Long id;
+    private UUID id;
     private UUID activityId;
-    private Long citizenId;
+    private UUID citizenId;
     private String citizenFullName;
-    private Long attendanceId;
+    private UUID attendanceId;
     private PenaltyStatus status;
     private String reviewNote;
     private String reviewedByFullName;

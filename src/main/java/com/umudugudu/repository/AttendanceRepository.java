@@ -10,12 +10,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
+public interface AttendanceRepository extends JpaRepository<Attendance, UUID> {
 
     List<Attendance> findByActivityId(UUID activityId);
     List<Attendance> findByActivityIdAndStatus(UUID activityId, AttendanceStatus status);
-    Optional<Attendance> findByActivityIdAndCitizenId(UUID activityId, Long citizenId);
-    List<Attendance> findByCitizenId(Long citizenId);
-    List<Attendance> findByCitizen_Id(Long citizenId);
-    List<Attendance> findByCitizen_Isibo_Id(Long id);
+    Optional<Attendance> findByActivityIdAndCitizenId(UUID activityId, UUID citizenId);
+    List<Attendance> findByCitizenId(UUID citizenId);
+    List<Attendance> findByCitizen_Id(UUID citizenId);
+    List<Attendance> findByCitizen_Isibo_Id(UUID id);
 }

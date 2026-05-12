@@ -114,13 +114,13 @@ public class AttendanceServiceImpl implements AttendanceService {
         }
     }
     @Override
-    public List<AttendanceResponse> getAttendanceForIsibo(long isiboId) {
+    public List<AttendanceResponse> getAttendanceForIsibo(UUID isiboId) {
         return attendanceRepository.findByCitizen_Isibo_Id(isiboId)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Override
-    public List<AttendanceResponse> getAttendanceForCitizen(Long citizenId) {
+    public List<AttendanceResponse> getAttendanceForCitizen(UUID citizenId) {
         return attendanceRepository.findByCitizen_Id(citizenId)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }

@@ -9,9 +9,9 @@ import java.util.UUID;
 @Data
 public class AttendanceResponse {
 
-    private Long id;
+    private UUID id;
     private UUID activityId;
-    private Long citizenId;
+    private UUID citizenId;
     private String citizenFullName;
     private String markedByFullName;
     private AttendanceStatus status;

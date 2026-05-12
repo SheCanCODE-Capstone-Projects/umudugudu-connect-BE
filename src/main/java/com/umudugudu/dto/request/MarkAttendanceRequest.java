@@ -5,12 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public class MarkAttendanceRequest {
 
     @NotNull(message = "Citizen ID is required")
-    private Long citizenId;
+    private UUID citizenId;
 
     @NotNull(message = "Status is required")
     private AttendanceStatus status;

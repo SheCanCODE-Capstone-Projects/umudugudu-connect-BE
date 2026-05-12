@@ -82,4 +82,10 @@ public class AdminController {
             @RequestParam(required = false) String action) {
         return ResponseEntity.ok(Map.of("message", "TODO: return paginated audit logs"));
     }
+    @PutMapping("/users/assign-village-leader")
+    public ResponseEntity<?> assignVillageLeader(@RequestBody AssignVillageLeaderRequest request) {
+        String message = adminService.assignVillageLeader(request.getEmail(), request.getVillageId());
+        return ResponseEntity.ok(Map.of("message", message));
+    }
+
 }

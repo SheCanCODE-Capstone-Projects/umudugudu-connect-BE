@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.UUID;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -46,8 +47,8 @@ public class IsiboManagementService {
         return leader;
     }
 
-    /** Ensure the isibo belongs to the leader's village. */
-    private Isibo resolveIsibo(Long isiboId, Village village) {
+    /** Ensure the isibo beUUIDs to the leader's village. */
+    private Isibo resolveIsibo(UUID isiboId, Village village) {
         return isiboRepository.findByIdAndVillage(isiboId, village)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -125,13 +126,13 @@ public class IsiboManagementService {
 
 
     @Transactional
-    public IsiboResponse assignMembers(Long isiboId, AssignMembersRequest request) {
+    public IsiboResponse assignMembers(UUID isiboId, AssignMembersRequest request) {
         User villageLeader = getAuthenticatedVillageLeader();
         Village village = villageLeader.getVillage();
 
         Isibo isibo = resolveIsibo(isiboId, village);
 
-        // Fetch only members that belong to this village
+        // Fetch only members that beUUID to this village
         List<User> members = userRepository.findByIdInAndVillage(request.getMemberIds(), village);
 
         if (members.size() != request.getMemberIds().size()) {
@@ -150,7 +151,7 @@ public class IsiboManagementService {
 
 
     @Transactional
-    public void removeMember(Long isiboId, Long memberId) {
+    public void removeMember(UUID isiboId, UUID memberId) {
         User villageLeader = getAuthenticatedVillageLeader();
         Village village = villageLeader.getVillage();
 
@@ -179,7 +180,7 @@ public class IsiboManagementService {
     }
 
 
-    public IsiboResponse getIsibo(Long isiboId) {
+    public IsiboResponse getIsibo(UUID isiboId) {
         User villageLeader = getAuthenticatedVillageLeader();
         Isibo isibo = resolveIsibo(isiboId, villageLeader.getVillage());
         return toResponse(isibo);
@@ -202,7 +203,7 @@ public class IsiboManagementService {
 
 
     @Transactional
-    public IsiboResponse assignIsiboLeader(Long isiboId, Long userId) {
+    public IsiboResponse assignIsiboLeader(UUID isiboId, UUID userId) {
         User villageLeader = getAuthenticatedVillageLeader();
         Village village = villageLeader.getVillage();
 

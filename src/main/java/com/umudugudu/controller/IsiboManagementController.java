@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/village-leader/isibos")
@@ -34,30 +35,30 @@ public class IsiboManagementController {
     }
     
     @GetMapping("/{isiboId}")
-    public ResponseEntity<IsiboResponse> getIsibo(@PathVariable Long isiboId) {
+    public ResponseEntity<IsiboResponse> getIsibo(@PathVariable UUID isiboId) {
         return ResponseEntity.ok(service.getIsibo(isiboId));
     }
 
 
     @PostMapping("/{isiboId}/members")
     public ResponseEntity<IsiboResponse> assignMembers(
-            @PathVariable Long isiboId,
+            @PathVariable UUID isiboId,
             @Valid @RequestBody AssignMembersRequest request) {
         return ResponseEntity.ok(service.assignMembers(isiboId, request));
     }
 
     @DeleteMapping("/{isiboId}/members/{memberId}")
     public ResponseEntity<Void> removeMember(
-            @PathVariable Long isiboId,
-            @PathVariable Long memberId) {
+            @PathVariable UUID isiboId,
+            @PathVariable UUID memberId) {
         service.removeMember(isiboId, memberId);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{isiboId}/leader/{userId}")
     public ResponseEntity<IsiboResponse> assignLeader(
-            @PathVariable Long isiboId,
-            @PathVariable Long userId) {
+            @PathVariable UUID isiboId,
+            @PathVariable UUID userId) {
         return ResponseEntity.ok(service.assignIsiboLeader(isiboId, userId));
     }
 

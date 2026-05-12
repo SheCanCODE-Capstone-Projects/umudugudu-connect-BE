@@ -20,8 +20,8 @@ import java.util.UUID;
 public class Attendance {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "activity_id", nullable = false)
     private UUID activityId;
