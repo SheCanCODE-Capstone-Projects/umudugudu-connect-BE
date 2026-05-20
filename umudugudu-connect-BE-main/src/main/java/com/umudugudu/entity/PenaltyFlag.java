@@ -3,6 +3,8 @@ package com.umudugudu.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -39,6 +41,20 @@ public class PenaltyFlag {
     private PenaltyStatus status;
 
     private String reviewNote;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal amount;
+
+    private String reason;
+
+    @Column(name = "due_date")
+    private LocalDate dueDate;
+
+    @Column(name = "paid_at")
+    private LocalDateTime paidAt;
+
+    @Column(name = "exemption_reason")
+    private String exemptionReason;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_by_id")

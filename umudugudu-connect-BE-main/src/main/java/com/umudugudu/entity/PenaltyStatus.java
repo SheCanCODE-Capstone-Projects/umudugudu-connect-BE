@@ -3,5 +3,8 @@ package com.umudugudu.entity;
 public enum PenaltyStatus {
     FLAGGED,
     CONFIRMED,
-    WAIVED
+    WAIVED,
+    UNPAID,
+    PAID,
+    EXCUSED
 }
