@@ -1,39 +1,47 @@
 package com.umudugudu.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Data
 @Table(name = "users")
 public class User {
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    private String fullName;
+    private String firstName;
+    private String lastName;
+
 
     @Column(unique = true, nullable = false)
     @NotBlank
     private String email;
 
+    @Column(unique = true)
+    private String phoneNumber;
+
+    @JsonIgnore
     private String password;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
     private Role role;
 
-    private UUID villageId;
+    private boolean enabled;
+    private boolean verified = false;
 
-    private UUID isiboId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "isibo_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "citizens", "village", "isiboLeader"})
+    private Isibo isibo;
 
-    @Column(unique = true)
-    private String phoneNumber;
 
     private boolean smsNotificationsEnabled = true;
 
@@ -41,7 +49,10 @@ public class User {
 
     private boolean isActive = true;
 
-    private LocalDateTime createdAt;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "village_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "isibos", "villageLeader"})
+    private Village village;
 
-    private LocalDateTime updatedAt;
+
 }

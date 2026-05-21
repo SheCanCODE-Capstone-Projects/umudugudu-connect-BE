@@ -1,6 +1,9 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.AssignVillageLeaderRequest;
+import com.umudugudu.dto.request.CreateVillageRequest;
 import com.umudugudu.dto.request.UpdateRoleRequest;
+import com.umudugudu.dto.response.UserResponseDTO;
 import com.umudugudu.repository.UserRepository;
 import com.umudugudu.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +47,16 @@ public class AdminController {
             @RequestParam(defaultValue = "20") int size) {
         return ResponseEntity.ok(Map.of("message", "TODO: return paginated users list"));
     }
+    @GetMapping("/users/search")
+    public ResponseEntity<UserResponseDTO> searchUserByEmail(
+            @RequestParam String email
+    ) {
+        UserResponseDTO user = adminService.findUserByEmail(email);
+        return ResponseEntity.ok(user);
+    }
 
-    @PutMapping("/users/role-by-email")
+
+    @PutMapping("/users/role")
     public ResponseEntity<?> updateRole(@RequestBody UpdateRoleRequest request) {
 
         String message = adminService.updateRoleByEmail(
@@ -53,9 +64,11 @@ public class AdminController {
                 request.getRole()
         );
 
-        return ResponseEntity.ok()
-                .body("Role updated successfully");
+        return ResponseEntity.ok(
+                Map.of("message", message)
+        );
     }
+
 
     @PutMapping("/users/{id}/deactivate")
     public ResponseEntity<Map<String, String>> deactivate(@PathVariable String id) {
@@ -71,4 +84,15 @@ public class AdminController {
             @RequestParam(required = false) String action) {
         return ResponseEntity.ok(Map.of("message", "TODO: return paginated audit logs"));
     }
+    @PutMapping("/users/assign-village-leader")
+    public ResponseEntity<?> assignVillageLeader(@RequestBody AssignVillageLeaderRequest request) {
+        String message = adminService.assignVillageLeader(request.getEmail(), request.getVillageId());
+        return ResponseEntity.ok(Map.of("message", message));
+    }
+    @PostMapping("/villages")
+    public ResponseEntity<?> createVillage(@RequestBody CreateVillageRequest request) {
+        String message = adminService.createVillage(request.getName());
+        return ResponseEntity.ok(Map.of("message", message));
+    }
+
 }

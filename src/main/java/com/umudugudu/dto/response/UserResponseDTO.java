@@ -1,12 +1,17 @@
 package com.umudugudu.dto.response;
 
-import com.umudugudu.entity.Role;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
-@Getter
+import java.util.UUID;
+
+@Data
 @AllArgsConstructor
 public class UserResponseDTO {
+
+    private UUID id;
+    private String firstName;
+    private String lastName;
     private String email;
-    private Role role;
+    private String role;
 }

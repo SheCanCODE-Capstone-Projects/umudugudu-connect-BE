@@ -1,57 +1,36 @@
 package com.umudugudu.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "notifications")
 public class Notification {
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private UUID userId;
+    @ManyToOne
+    @JoinColumn(name = "recipient_id", nullable = false)
+    private User recipient;
 
-    private String title;
-
-    @Column(columnDefinition = "TEXT")
     private String message;
 
-    @Enumerated(EnumType.STRING)
-    private DeliveryMethod deliveryMethod;
+    private boolean read = false;
 
-    private boolean isRead = false;
-
-    private LocalDateTime sentAt;
-
-    private LocalDateTime readAt;
+    // Optional link to the change request
+    @ManyToOne
+    @JoinColumn(name = "change_request_id")
+    private ProfileChangeRequest changeRequest;
 
     private LocalDateTime createdAt;
 
-    public void setIsRead(boolean b) {
-    }
-
-    public enum DeliveryMethod {
-        FCM, SMS, EMAIL, BOTH
-    }
-
     @PrePersist
-    protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
-        if (sentAt == null) {
-            sentAt = LocalDateTime.now();
-        }
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
     }
 }
-
