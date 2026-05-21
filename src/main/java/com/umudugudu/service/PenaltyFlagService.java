@@ -1,6 +1,7 @@
 package com.umudugudu.service;
 
 import com.umudugudu.dto.request.ReviewPenaltyRequest;
+import com.umudugudu.dto.response.IsiboHouseholdPenaltyOverview;
 import com.umudugudu.dto.response.PenaltyFlagResponse;
 import com.umudugudu.entity.Attendance;
 import com.umudugudu.entity.User;
@@ -15,4 +16,7 @@ public interface PenaltyFlagService {
 
     List<PenaltyFlagResponse> getPendingFlagsForActivity(UUID activityId);
     List<PenaltyFlagResponse> getFlagsForCitizen(UUID citizenId);
+
+    // Get household penalties overview for isibo leader
+    IsiboHouseholdPenaltyOverview getHouseholdPenaltiesByIsibo(UUID isiboId);
 }

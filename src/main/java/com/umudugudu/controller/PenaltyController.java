@@ -1,6 +1,7 @@
 package com.umudugudu.controller;
 
 import com.umudugudu.dto.request.ReviewPenaltyRequest;
+import com.umudugudu.dto.response.IsiboHouseholdPenaltyOverview;
 import com.umudugudu.dto.response.PenaltyFlagResponse;
 import com.umudugudu.entity.User;
 import com.umudugudu.service.PenaltyFlagService;
@@ -61,6 +62,16 @@ public class PenaltyController {
 
         return ResponseEntity.ok(
                 penaltyFlagService.reviewPenalty(flagId, request, currentUser)
+        );
+    }
+
+    @GetMapping("/isibos/{isiboId}/penalties/overview")
+    @PreAuthorize("hasAnyRole('ISIBO_LEADER','VILLAGE_LEADER','ADMIN')")
+    public ResponseEntity<IsiboHouseholdPenaltyOverview> getHouseholdPenaltiesByIsibo(
+            @PathVariable UUID isiboId) {
+
+        return ResponseEntity.ok(
+                penaltyFlagService.getHouseholdPenaltiesByIsibo(isiboId)
         );
     }
 }

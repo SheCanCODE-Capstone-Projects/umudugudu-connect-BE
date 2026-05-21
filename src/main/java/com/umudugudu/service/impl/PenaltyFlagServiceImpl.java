@@ -1,18 +1,21 @@
 package com.umudugudu.service.impl;
 
 import com.umudugudu.dto.request.ReviewPenaltyRequest;
+import com.umudugudu.dto.response.HouseholdPenaltySummary;
+import com.umudugudu.dto.response.IsiboHouseholdPenaltyOverview;
 import com.umudugudu.dto.response.PenaltyFlagResponse;
 import com.umudugudu.entity.*;
 import com.umudugudu.repository.PenaltyFlagRepository;
+import com.umudugudu.repository.IsiboRepository;
 import com.umudugudu.service.PenaltyFlagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,6 +24,7 @@ import java.util.stream.Collectors;
 public class PenaltyFlagServiceImpl implements PenaltyFlagService {
 
     private final PenaltyFlagRepository penaltyFlagRepository;
+    private final IsiboRepository isiboRepository;
 
     @Override
     @Transactional
@@ -125,5 +129,67 @@ public class PenaltyFlagServiceImpl implements PenaltyFlagService {
         r.setFlaggedAt(f.getFlaggedAt());
         r.setReviewedAt(f.getReviewedAt());
         return r;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public IsiboHouseholdPenaltyOverview getHouseholdPenaltiesByIsibo(UUID isiboId) {
+
+        Isibo isibo = isiboRepository.findById(isiboId)
+                .orElseThrow(() -> new RuntimeException("Isibo not found: " + isiboId));
+
+
+        List<PenaltyFlag> allPenalties = penaltyFlagRepository.findByCitizen_IsiboId(isiboId);
+
+
+        Map<User, List<PenaltyFlag>> householdPenalties = allPenalties.stream()
+                .collect(Collectors.groupingBy(PenaltyFlag::getCitizen));
+
+
+        List<HouseholdPenaltySummary> householdSummaries = householdPenalties.entrySet().stream()
+                .map(entry -> {
+                    User householdHead = entry.getKey();
+                    List<PenaltyFlag> penalties = entry.getValue();
+
+
+                    long unpaidCount = penalties.stream()
+                            .filter(p -> p.getStatus() == PenaltyStatus.FLAGGED)
+                            .count();
+
+
+                    BigDecimal totalAmount = BigDecimal.valueOf(unpaidCount * 1000);
+
+                    return HouseholdPenaltySummary.builder()
+                            .householdId(householdHead.getId())
+                            .householdHeadName(householdHead.getFirstName() + " " + householdHead.getLastName())
+                            .phoneNumber(householdHead.getPhoneNumber())
+                            .totalUnpaidPenalties(unpaidCount)
+                            .totalOutstandingAmount(totalAmount)
+                            .penaltyDetails(penalties.stream()
+                                    .filter(p -> p.getStatus() == PenaltyStatus.FLAGGED)
+                                    .map(this::toResponse)
+                                    .collect(Collectors.toList()))
+                            .build();
+                })
+                .filter(h -> h.getTotalUnpaidPenalties() > 0) // Only include households with pending penalties
+                .collect(Collectors.toList());
+
+
+        long totalUnpaidPenalties = householdSummaries.stream()
+                .mapToLong(HouseholdPenaltySummary::getTotalUnpaidPenalties)
+                .sum();
+
+        BigDecimal totalOutstandingAmount = householdSummaries.stream()
+                .map(HouseholdPenaltySummary::getTotalOutstandingAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        return IsiboHouseholdPenaltyOverview.builder()
+                .isiboId(isibo.getId())
+                .isiboName(isibo.getName())
+                .totalHouseholdsWithPenalties((long) householdSummaries.size())
+                .totalUnpaidPenalties(totalUnpaidPenalties)
+                .totalOutstandingAmount(totalOutstandingAmount)
+                .households(householdSummaries)
+                .build();
     }
 }
