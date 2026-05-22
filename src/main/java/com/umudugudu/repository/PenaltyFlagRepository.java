@@ -15,4 +15,10 @@ public interface PenaltyFlagRepository extends JpaRepository<PenaltyFlag, UUID> 
     List<PenaltyFlag> findByActivityIdAndStatus(UUID activityId, PenaltyStatus status);
     List<PenaltyFlag> findByCitizenId(UUID citizenId);
     Optional<PenaltyFlag> findByActivityIdAndCitizenId(UUID activityId, UUID citizenId);
+
+    // Find all penalties for citizens in a specific isibo
+    List<PenaltyFlag> findByCitizen_IsiboId(UUID isiboId);
+
+    // Find unflagged/unresolved penalties for citizens in a specific isibo
+    List<PenaltyFlag> findByCitizen_IsiboIdAndStatus(UUID isiboId, PenaltyStatus status);
 }
