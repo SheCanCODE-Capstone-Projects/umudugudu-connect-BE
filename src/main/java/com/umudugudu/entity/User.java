@@ -20,7 +20,6 @@ public class User {
     private String firstName;
     private String lastName;
 
-
     @Column(unique = true, nullable = false)
     @NotBlank
     private String email;
@@ -42,17 +41,20 @@ public class User {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "citizens", "village", "isiboLeader"})
     private Isibo isibo;
 
-
-    private boolean smsNotificationsEnabled = true;
-
-    private String preferredNotificationMethod = "FCM";
-
-    private boolean isActive = true;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "village_id")
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "isibos", "villageLeader"})
     private Village village;
 
+    @Column(name = "sms_notifications_enabled", nullable = false,
+            columnDefinition = "boolean default true")
+    private boolean smsNotificationsEnabled = true;
 
+    @Column(name = "preferred_notification_method",
+            columnDefinition = "varchar(255) default 'FCM'")
+    private String preferredNotificationMethod = "FCM";
+
+    @Column(name = "is_active", nullable = false,
+            columnDefinition = "boolean default true")
+    private boolean isActive = true;
 }
