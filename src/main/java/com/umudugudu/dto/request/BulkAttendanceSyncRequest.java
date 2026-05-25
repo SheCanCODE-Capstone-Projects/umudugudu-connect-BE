@@ -1,5 +1,8 @@
 package com.umudugudu.dto.request;
+<<<<<<< HEAD
 
+=======
+>>>>>>> be3e460 (E3.1 assign penalty to absent citizen)
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -17,4 +20,8 @@ public class BulkAttendanceSyncRequest {
     @NotEmpty(message = "Records list cannot be empty")
     @Valid
     private List<MarkAttendanceRequest> records;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> be3e460 (E3.1 assign penalty to absent citizen)

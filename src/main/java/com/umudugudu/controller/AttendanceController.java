@@ -72,7 +72,11 @@ public class AttendanceController {
     }
 
     @GetMapping("/api/activities/{activityId}/attendance/absent")
+<<<<<<< HEAD
     @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
+=======
+    @PreAuthorize("hasAnyRole('ISIBO_LEADER','VILLAGE_LEADER','ADMIN')")
+>>>>>>> be3e460 (E3.1 assign penalty to absent citizen)
     public ResponseEntity<List<AttendanceResponse>> getAbsentMembers(
             @PathVariable UUID activityId) {
 
