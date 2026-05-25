@@ -22,7 +22,6 @@ public class Notification {
 
     private boolean read = false;
 
-    // Optional link to the change request
     @ManyToOne
     @JoinColumn(name = "change_request_id")
     private ProfileChangeRequest changeRequest;
@@ -33,4 +32,5 @@ public class Notification {
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
+
 }

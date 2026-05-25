@@ -43,10 +43,14 @@ public class SmsLog {
         PENDING, SENT, DELIVERED, FAILED
     }
 
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
     @PrePersist
-    protected void onCreate() {
-        if (sentAt == null) {
-            sentAt = LocalDateTime.now();
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        if (this.sentAt == null) {
+            this.sentAt = LocalDateTime.now();
         }
     }
 }
