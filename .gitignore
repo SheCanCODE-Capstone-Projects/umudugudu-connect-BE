@@ -1,8 +1,50 @@
-# IDE files
-.idea/
-
-# Build output
+# ===== MAVEN =====
 target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
 
-# Environment variables
+# ===== INTELLIJ IDEA =====
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ===== ECLIPSE =====
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# ===== VSCODE =====
+.vscode/
+
+# ===== ENVIRONMENT & SECRETS =====
 .env
+.env.local
+.env.production
+application-local.properties
+application-local.yml
+application-prod.properties
+application-prod.yml
+
+# ===== LOGS =====
+*.log
+logs/
+
+# ===== OS FILES =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== JAVA =====
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
