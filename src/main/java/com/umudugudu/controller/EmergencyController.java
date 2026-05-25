@@ -1,43 +1,57 @@
 package com.umudugudu.controller;
 
+import com.umudugudu.dto.request.CreateEmergencyRequest;
+import com.umudugudu.entity.EmergencyReport;
+import com.umudugudu.repository.EmergencyRepository;
+import com.umudugudu.service.EmergencyService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
-/**
- * Emergency reporting and broadcasting.
- *
- * POST /api/v1/emergency/report            — citizen reports emergency
- * GET  /api/v1/emergency                   — list emergency reports (VILLAGE_LEADER+)
- * POST /api/v1/emergency/{id}/broadcast    — verify + broadcast to all (VILLAGE_LEADER)
- *
- * TODO: Inject EmergencyService, NotificationService and implement.
- */
 @RestController
 @RequestMapping("/api/v1/emergency")
+@RequiredArgsConstructor
 public class EmergencyController {
+
+    private final EmergencyService emergencyService;
+
 
     @PostMapping("/report")
     @PreAuthorize("hasRole('CITIZEN')")
-    public ResponseEntity<Map<String, String>> report(@RequestBody Map<String, Object> body) {
-        // body: { type: FLOOD|HEALTH|FIRE|OTHER, description, location (optional) }
-        // TODO: EmergencyService.report(body, reporterId)
-        //       — saves report, notifies Village Leader via push + SMS immediately
-        return ResponseEntity.status(201).body(Map.of("message", "TODO: save emergency report + alert leader"));
+    public ResponseEntity<Map<String, String>> reportEmergency(
+            @RequestBody CreateEmergencyRequest request
+    ) {
+        emergencyService.reportEmergency(request);
+
+        return ResponseEntity.status(201).body(
+                Map.of("message", "Emergency reported successfully")
+        );
     }
+
 
     @GetMapping
     @PreAuthorize("hasAnyRole('VILLAGE_LEADER','ADMIN')")
-    public ResponseEntity<Map<String, String>> list() {
-        return ResponseEntity.ok(Map.of("message", "TODO: return emergency reports for village"));
+    public ResponseEntity<?> listEmergencies() {
+        return ResponseEntity.ok(
+                emergencyService.getAllEmergencies()
+        );
     }
 
+
     @PostMapping("/{id}/broadcast")
-    @PreAuthorize("hasRole('VILLAGE_LEADER')")
-    public ResponseEntity<Map<String, String>> broadcast(@PathVariable String id) {
-        // TODO: EmergencyService.broadcast(id) — sends emergency alert to ALL village citizens
-        return ResponseEntity.ok(Map.of("message", "TODO: broadcast emergency " + id + " to all citizens"));
+    public ResponseEntity<?> broadcast(@PathVariable UUID id) {
+
+        EmergencyReport report = emergencyService.getEmergencyById(id);
+
+        emergencyService.broadcastEmergency(
+                report.getDescription(),
+                report.getVillageId()
+        );
+
+        return ResponseEntity.ok("Broadcast sent");
     }
 }
