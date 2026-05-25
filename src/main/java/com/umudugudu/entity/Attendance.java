@@ -36,7 +36,7 @@ public class Attendance {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AttendanceStatus status; // PRESENT | ABSENT
+    private AttendanceStatus status;
 
     @Column(name = "marked_at", nullable = false)
     private LocalDateTime markedAt;
@@ -46,11 +46,10 @@ public class Attendance {
 
     @Column(name = "offline_marked_at")
     private LocalDateTime offlineMarkedAt;
-<<<<<<< HEAD
-=======
-    @Column(nullable = false)
-    private boolean exempted=false;
->>>>>>> be3e460 (E3.1 assign penalty to absent citizen)
+
+    @Column(nullable = false,
+            columnDefinition = "boolean default false")
+    private boolean exempted = false;
 
     @PrePersist
     public void prePersist() {
