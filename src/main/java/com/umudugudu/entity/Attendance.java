@@ -46,6 +46,11 @@ public class Attendance {
 
     @Column(name = "offline_marked_at")
     private LocalDateTime offlineMarkedAt;
+<<<<<<< HEAD
+=======
+    @Column(nullable = false)
+    private boolean exempted=false;
+>>>>>>> be3e460 (E3.1 assign penalty to absent citizen)
 
     @PrePersist
     public void prePersist() {

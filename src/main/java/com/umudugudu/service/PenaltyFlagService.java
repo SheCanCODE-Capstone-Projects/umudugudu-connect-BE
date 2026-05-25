@@ -5,6 +5,10 @@ import com.umudugudu.dto.response.IsiboHouseholdPenaltyOverview;
 import com.umudugudu.dto.response.PenaltyFlagResponse;
 import com.umudugudu.entity.Attendance;
 import com.umudugudu.entity.User;
+<<<<<<< HEAD
+=======
+import org.springframework.stereotype.Service;
+>>>>>>> be3e460 (E3.1 assign penalty to absent citizen)
 
 import java.util.List;
 import java.util.UUID;
