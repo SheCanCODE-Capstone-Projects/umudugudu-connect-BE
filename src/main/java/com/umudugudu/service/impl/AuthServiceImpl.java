@@ -349,4 +349,26 @@ public class AuthServiceImpl implements AuthService {
         );
         return jwtUtils.generateResetToken(userDetails); // see step 3 below
     }
+
+    @Override
+    public void resetPassword(String email, String resetToken, String newPassword) {
+        String tokenEmail = jwtUtils.extractUsername(resetToken);
+        if (!tokenEmail.equals(email)) {
+            throw new RuntimeException("Invalid reset token");
+        }
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                email, "", List.of(new SimpleGrantedAuthority("ROLE_RESET"))
+        );
+        if (!jwtUtils.isTokenValid(resetToken, userDetails)) {
+            throw new RuntimeException("Reset token expired or invalid. Please start over.");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+        userRepository.save(user);
+        otpRepository.deleteByEmail(email);
+    }
 }
