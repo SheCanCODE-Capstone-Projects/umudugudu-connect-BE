@@ -319,4 +319,11 @@ public class AuthServiceImpl implements AuthService {
                 || role == Role.VILLAGE_LEADER
                 || role == Role.ADMIN;
     }
+    @Override
+    public void requestPasswordReset(String email) {
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("No account found with that email"));
+        otpRepository.deleteByEmail(email);
+        sendOtpToEmail(email);
+    }
 }
