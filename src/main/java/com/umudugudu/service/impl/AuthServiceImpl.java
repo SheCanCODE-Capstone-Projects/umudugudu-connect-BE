@@ -326,4 +326,27 @@ public class AuthServiceImpl implements AuthService {
         otpRepository.deleteByEmail(email);
         sendOtpToEmail(email);
     }
+    @Override
+    public String verifyPasswordResetOtp(String email, String code) {
+        Otp otp = otpRepository.findTopByEmailOrderByIdDesc(email)
+                .orElseThrow(() -> new RuntimeException("OTP not found"));
+
+        if (LocalDateTime.now().isAfter(otp.getExpiryTime())) {
+            throw new RuntimeException("OTP expired. Please request a new one.");
+        }
+
+        if (!otp.getCode().equals(code.trim())) {
+            otp.setAttempts(otp.getAttempts() + 1);
+            otpRepository.save(otp);
+            int remaining = 3 - otp.getAttempts();
+            if (remaining <= 0) throw new RuntimeException("Too many attempts. Please request a new OTP.");
+            throw new RuntimeException("Invalid OTP — " + remaining + " attempt(s) remaining");
+        }
+
+        // OTP is valid — issue a signed reset token valid for 10 minutes
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                email, "", List.of(new SimpleGrantedAuthority("ROLE_RESET"))
+        );
+        return jwtUtils.generateResetToken(userDetails); // see step 3 below
+    }
 }
