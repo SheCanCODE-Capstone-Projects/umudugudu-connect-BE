@@ -129,4 +129,12 @@ public class AuthController {
         authService.requestPasswordReset(body.get("email"));
         return ResponseEntity.ok(Map.of("message", "OTP sent to your email"));
     }
+    @PostMapping("/password/verify-otp")
+    public ResponseEntity<?> verifyPasswordResetOtp(@RequestBody OtpVerifyRequestEmail request) {
+        String resetToken = authService.verifyPasswordResetOtp(request.getEmail(), request.getOtp());
+        return ResponseEntity.ok(Map.of(
+                "resetToken", resetToken,
+                "message", "OTP verified. Use the resetToken to set your new password."
+        ));
+    }
 }
