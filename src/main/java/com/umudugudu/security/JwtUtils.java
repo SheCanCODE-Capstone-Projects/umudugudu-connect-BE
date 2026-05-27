@@ -76,4 +76,16 @@ public class JwtUtils {
         return extractUsername(token).equals(userDetails.getUsername())
             && !extractClaim(token, Claims::getExpiration).before(new Date());
     }
+    @Value("${app.jwt.reset-expiry-ms:600000}") // 10 min default
+    private long resetExpiryMs;
+
+    public String generateResetToken(UserDetails userDetails) {
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .claim("type", "reset")        // prevents reuse as access token
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + resetExpiryMs))
+                .signWith(getKey())
+                .compact();
+    }
 }
