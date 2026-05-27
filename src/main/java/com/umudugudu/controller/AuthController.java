@@ -124,4 +124,9 @@ public class AuthController {
                 "url", baseUrl + "/api/v1/auth/oauth2/authorize/google"
         ));
     }
+    @PostMapping("/password/reset-request")
+    public ResponseEntity<?> requestPasswordReset(@RequestBody Map<String, String> body) {
+        authService.requestPasswordReset(body.get("email"));
+        return ResponseEntity.ok(Map.of("message", "OTP sent to your email"));
+    }
 }
