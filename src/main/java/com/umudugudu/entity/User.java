@@ -3,6 +3,7 @@ package com.umudugudu.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.UUID;
@@ -19,11 +20,12 @@ public class User {
     private String firstName;
     private String lastName;
 
-    @Column(unique = true)
-    private String phoneNumber;
+    @Column(unique = true, nullable = false)
+    @NotBlank
+    private String email;
 
     @Column(unique = true)
-    private String email;
+    private String phoneNumber;
 
     @JsonIgnore
     private String password;
@@ -44,4 +46,15 @@ public class User {
     @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "isibos", "villageLeader"})
     private Village village;
 
+    @Column(name = "sms_notifications_enabled", nullable = false,
+            columnDefinition = "boolean default true")
+    private boolean smsNotificationsEnabled = true;
+
+    @Column(name = "preferred_notification_method",
+            columnDefinition = "varchar(255) default 'FCM'")
+    private String preferredNotificationMethod = "FCM";
+
+    @Column(name = "is_active", nullable = false,
+            columnDefinition = "boolean default true")
+    private boolean isActive = true;
 }

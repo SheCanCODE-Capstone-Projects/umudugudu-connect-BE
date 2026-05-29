@@ -1,7 +1,8 @@
 package com.umudugudu.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
+
+import java.util.UUID;
 
 import java.util.UUID;
 

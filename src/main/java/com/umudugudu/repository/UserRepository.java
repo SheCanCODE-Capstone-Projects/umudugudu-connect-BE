@@ -18,4 +18,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByIdInAndVillage(List<UUID> ids, Village village);
     Optional<User> findByIdAndVillageAndRole(UUID id, Village village, Role role);
     Optional<User> findByIdAndVillage(UUID id, Village village);
+    List<User> findByIsiboIdIn(List<UUID> isiboIds);
+    List<User> findByVillageAndRole(Village village, Role role);
+    List<User> findByVillage(Village village);
 }

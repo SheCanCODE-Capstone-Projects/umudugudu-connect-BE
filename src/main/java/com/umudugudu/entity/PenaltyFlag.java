@@ -1,6 +1,7 @@
 package com.umudugudu.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,12 @@ import java.util.UUID;
 @Table(
         name = "penalty_flags",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"activity_id", "citizen_id"})
+                @UniqueConstraint(
+                        columnNames = {
+                                "activity_id",
+                                "citizen_id"
+                        }
+                )
         }
 )
 @Data
@@ -34,9 +40,15 @@ public class PenaltyFlag {
     @JoinColumn(name = "attendance_id", nullable = false)
     private Attendance attendance;
 
+    // FLAGGED / CONFIRMED / WAIVED
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PenaltyStatus status; // starts as FLAGGED via @PrePersist
+    private PenaltyStatus reviewStatus;
+
+    // UNPAID / PAID
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PenaltyPaymentStatus paymentStatus;
 
     private String reviewNote;
 
@@ -52,7 +64,14 @@ public class PenaltyFlag {
 
     @PrePersist
     public void prePersist() {
-        this.flaggedAt = LocalDateTime.now();
-        this.status = PenaltyStatus.FLAGGED;
+        if (flaggedAt == null) {
+            flaggedAt = LocalDateTime.now();
+        }
+        if (reviewStatus == null) {
+            reviewStatus = PenaltyStatus.FLAGGED;
+        }
+        if (paymentStatus == null) {
+            paymentStatus = PenaltyPaymentStatus.UNPAID;
+        }
     }
 }

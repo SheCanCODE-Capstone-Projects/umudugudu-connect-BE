@@ -12,7 +12,7 @@ spring:
   datasource:
     url:               jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:umudugudu_db}
     username:          ${DB_USERNAME:postgres}
-    password:          ${DB_PASSWORD:123}
+    password:          ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -97,8 +97,11 @@ spring:
       minimum-idle:      5
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   data:
     redis:
       host: ${REDIS_HOST}
@@ -115,9 +118,26 @@ spring:
           starttls:
             enable: true
             required: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id:     ${GOOGLE_CLIENT_ID:}
+            client-secret: ${GOOGLE_CLIENT_SECRET:}
+            scope:
+              - email
+              - profile
+            redirect-uri: "${APP_BASE_URL:http://localhost:8080}/api/v1/auth/oauth2/callback/google"
 
 server:
   port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 
 app:
   jwt:
@@ -126,21 +146,28 @@ app:
     refresh-expiry-ms: 604800000
   cors:
     allowed-origins:   ${CORS_ORIGINS}
+  otp:
+    ttl-seconds:       300
+    max-attempts:      3
+  africas-talking:
+    api-key:    ${AT_API_KEY:}
+    username:   ${AT_USERNAME:}
+    sender-id:  ${AT_SENDER_ID:UmuduguduConnect}
+  mtn:
+    primary-key:   ${MTN_PRIMARY_KEY:}
+    secondary-key: ${MTN_SECONDARY_KEY:}
+    base-url:      ${MTN_BASE_URL:https://sandbox.momodeveloper.mtn.com}
+    callback-url:  ${MTN_CALLBACK_URL:}
+  airtel:
+    client-id:     ${AIRTEL_CLIENT_ID:}
+    client-secret: ${AIRTEL_CLIENT_SECRET:}
+    base-url:      ${AIRTEL_BASE_URL:https://openapi.airtel.africa}
+    callback-url:  ${AIRTEL_CALLBACK_URL:}
+  fcm:
+    server-key:  ${FCM_SERVER_KEY:}
+    project-id:  ${FCM_PROJECT_ID:}
 
 logging:
   level:
     com.umudugudu: INFO
     root: WARN
----
-spring:
-  security:
-    oauth2:
-      client:
-        registration:
-          google:
-            client-id: ${GOOGLE_CLIENT_ID}
-            client-secret: ${GOOGLE_CLIENT_SECRET}
-            scope:
-              - email
-              - profile
-            redirect-uri: "http://localhost:8081/api/v1/auth/oauth2/callback/google"

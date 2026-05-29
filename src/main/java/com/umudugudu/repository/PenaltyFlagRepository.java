@@ -11,8 +11,16 @@ import java.util.UUID;
 
 @Repository
 public interface PenaltyFlagRepository extends JpaRepository<PenaltyFlag, UUID> {
+
     List<PenaltyFlag> findByActivityId(UUID activityId);
-    List<PenaltyFlag> findByActivityIdAndStatus(UUID activityId, PenaltyStatus status);
+
+    List<PenaltyFlag> findByActivityIdAndReviewStatus(UUID activityId, PenaltyStatus reviewStatus);
+
     List<PenaltyFlag> findByCitizenId(UUID citizenId);
+
     Optional<PenaltyFlag> findByActivityIdAndCitizenId(UUID activityId, UUID citizenId);
+
+    List<PenaltyFlag> findByCitizen_IsiboId(UUID isiboId);
+
+    List<PenaltyFlag> findByCitizen_IsiboIdAndReviewStatus(UUID isiboId, PenaltyStatus reviewStatus);
 }
