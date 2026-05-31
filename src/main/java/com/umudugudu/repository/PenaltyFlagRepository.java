@@ -23,4 +23,6 @@ public interface PenaltyFlagRepository extends JpaRepository<PenaltyFlag, UUID> 
     List<PenaltyFlag> findByCitizen_IsiboId(UUID isiboId);
 
     List<PenaltyFlag> findByCitizen_IsiboIdAndReviewStatus(UUID isiboId, PenaltyStatus reviewStatus);
+
+    long countByReviewStatus(PenaltyStatus reviewStatus);
 }

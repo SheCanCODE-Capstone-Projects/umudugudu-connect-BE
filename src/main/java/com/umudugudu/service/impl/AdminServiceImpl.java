@@ -89,20 +89,9 @@ public class AdminServiceImpl implements AdminService {
         long totalActivities = activityRepository.count();
         long totalPenalties  = penaltyFlagRepository.count();
 
-        long confirmed = penaltyFlagRepository.findAll()
-                .stream()
-                .filter(p -> p.getReviewStatus() == PenaltyStatus.CONFIRMED)
-                .count();
-
-        long waived = penaltyFlagRepository.findAll()
-                .stream()
-                .filter(p -> p.getReviewStatus() == PenaltyStatus.WAIVED)
-                .count();
-
-        long flagged = penaltyFlagRepository.findAll()
-                .stream()
-                .filter(p -> p.getReviewStatus() == PenaltyStatus.FLAGGED)
-                .count();
+        long confirmed = penaltyFlagRepository.countByReviewStatus(PenaltyStatus.CONFIRMED);
+        long waived    = penaltyFlagRepository.countByReviewStatus(PenaltyStatus.WAIVED);
+        long flagged   = penaltyFlagRepository.countByReviewStatus(PenaltyStatus.FLAGGED);
 
         long totalAuditLogs = auditLogRepository.count();
 
@@ -124,14 +113,25 @@ public class AdminServiceImpl implements AdminService {
     public Page<UserResponseDTO> getAllUsers(String village, String role, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("firstName").ascending());
 
+        if (village != null && !village.isEmpty() && role != null && !role.isEmpty()) {
+            Village v = villageRepository.findByName(village)
+                    .orElseThrow(() -> new RuntimeException("Village not found: " + village));
+            Role roleEnum = Role.valueOf(role.toUpperCase());
+            return userRepository.findByVillageAndRole(v, roleEnum, pageable)
+                    .map(this::toUserDto);
+        }
+
+        if (village != null && !village.isEmpty()) {
+            Village v = villageRepository.findByName(village)
+                    .orElseThrow(() -> new RuntimeException("Village not found: " + village));
+            return userRepository.findByVillage(v, pageable)
+                    .map(this::toUserDto);
+        }
+
         if (role != null && !role.isEmpty()) {
-            try {
-                Role roleEnum = Role.valueOf(role.toUpperCase());
-                return userRepository.findByRole(roleEnum, pageable)
-                        .map(this::toUserDto);
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Invalid role: " + role);
-            }
+            Role roleEnum = Role.valueOf(role.toUpperCase());
+            return userRepository.findByRole(roleEnum, pageable)
+                    .map(this::toUserDto);
         }
 
         return userRepository.findAll(pageable).map(this::toUserDto);
@@ -170,6 +170,15 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Page<AuditLogResponse> getAuditLogs(String userId, String action, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("performedAt").descending());
+
+        // Issue 5 fix — guard against malformed userId
+        if (userId != null) {
+            try {
+                UUID.fromString(userId);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Invalid userId format: " + userId);
+            }
+        }
 
         Page<AuditLog> logs;
 

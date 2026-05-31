@@ -24,8 +24,8 @@ public class JwtUtils {
     private long refreshExpiryMs;
 
     private SecretKey getKey() {
-        // Decoders.BASE64 is safer than getBytes() — secret must be Base64-encoded in your .env
-        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
     }
 
     public String generateAccessToken(UserDetails userDetails) {

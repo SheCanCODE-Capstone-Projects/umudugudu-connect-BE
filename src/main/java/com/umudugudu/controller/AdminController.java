@@ -11,6 +11,8 @@ import com.umudugudu.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import com.umudugudu.repository.UserRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +27,7 @@ import java.util.UUID;
 public class AdminController {
 
     private final AdminService adminService;
+    private final UserRepository userRepository;
 
     //Aggregated Dashboard
 
@@ -59,7 +62,9 @@ public class AdminController {
     @PutMapping("/users/{id}/deactivate")
     public ResponseEntity<?> deactivate(
             @PathVariable UUID id,
-            @AuthenticationPrincipal User currentUser) {
+            @AuthenticationPrincipal UserDetails userDetails) {
+        User currentUser = userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
         return ResponseEntity.ok(Map.of("message",
                 adminService.deactivateUser(id, currentUser)));
     }
