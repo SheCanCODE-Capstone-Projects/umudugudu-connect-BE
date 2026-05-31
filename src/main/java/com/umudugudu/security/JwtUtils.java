@@ -48,10 +48,10 @@ public class JwtUtils {
 
     private String buildToken(String subject, String role, long expiry) {
         return Jwts.builder()
-                .subject(subject)                                               // ✅ replaces setSubject()
+                .subject(subject)
                 .claim("role", role)
-                .issuedAt(new Date())                                           // ✅ replaces setIssuedAt()
-                .expiration(new Date(System.currentTimeMillis() + expiry))      // ✅ replaces setExpiration()
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expiry))
                 .signWith(getKey())
                 .compact();
     }
@@ -61,11 +61,11 @@ public class JwtUtils {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = Jwts.parser()                    // ✅ replaces parserBuilder()
-                .verifyWith(getKey())                          // ✅ replaces setSigningKey()
+        final Claims claims = Jwts.parser()
+                .verifyWith(getKey())
                 .build()
-                .parseSignedClaims(token)                      // ✅ replaces parseClaimsJws()
-                .getPayload();                                 // ✅ replaces getBody()
+                .parseSignedClaims(token)
+                .getPayload();
         return claimsResolver.apply(claims);
     }
 

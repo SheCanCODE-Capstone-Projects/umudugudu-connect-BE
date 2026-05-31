@@ -150,7 +150,7 @@ public class AdminServiceImpl implements AdminService {
         user.setEnabled(false);
         userRepository.save(user);
 
-        // US-7.3 — write audit log
+
         AuditLog auditLog = AuditLog.builder()
                 .performedBy(performedBy)
                 .action("USER_DEACTIVATED")
@@ -171,7 +171,7 @@ public class AdminServiceImpl implements AdminService {
     public Page<AuditLogResponse> getAuditLogs(String userId, String action, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("performedAt").descending());
 
-        // Issue 5 fix — guard against malformed userId
+
         if (userId != null) {
             try {
                 UUID.fromString(userId);
