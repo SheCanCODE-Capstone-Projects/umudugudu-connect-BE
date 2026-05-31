@@ -63,8 +63,14 @@ public class AdminController {
     public ResponseEntity<?> deactivate(
             @PathVariable UUID id,
             @AuthenticationPrincipal UserDetails userDetails) {
-        User currentUser = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String username = userDetails.getUsername();
+
+        // handle both email and phone number login
+        User currentUser = userRepository.findByEmail(username)
+                .orElseGet(() -> userRepository.findByPhoneNumber(username)
+                        .orElseThrow(() -> new RuntimeException("User not found")));
+
         return ResponseEntity.ok(Map.of("message",
                 adminService.deactivateUser(id, currentUser)));
     }
