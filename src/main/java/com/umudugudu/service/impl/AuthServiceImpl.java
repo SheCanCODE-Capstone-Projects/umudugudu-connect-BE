@@ -319,4 +319,56 @@ public class AuthServiceImpl implements AuthService {
                 || role == Role.VILLAGE_LEADER
                 || role == Role.ADMIN;
     }
+    @Override
+    public void requestPasswordReset(String email) {
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("No account found with that email"));
+        otpRepository.deleteByEmail(email);
+        sendOtpToEmail(email);
+    }
+    @Override
+    public String verifyPasswordResetOtp(String email, String code) {
+        Otp otp = otpRepository.findTopByEmailOrderByIdDesc(email)
+                .orElseThrow(() -> new RuntimeException("OTP not found"));
+
+        if (LocalDateTime.now().isAfter(otp.getExpiryTime())) {
+            throw new RuntimeException("OTP expired. Please request a new one.");
+        }
+
+        if (!otp.getCode().equals(code.trim())) {
+            otp.setAttempts(otp.getAttempts() + 1);
+            otpRepository.save(otp);
+            int remaining = 3 - otp.getAttempts();
+            if (remaining <= 0) throw new RuntimeException("Too many attempts. Please request a new OTP.");
+            throw new RuntimeException("Invalid OTP — " + remaining + " attempt(s) remaining");
+        }
+
+        // OTP is valid — issue a signed reset token valid for 10 minutes
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                email, "", List.of(new SimpleGrantedAuthority("ROLE_RESET"))
+        );
+        return jwtUtils.generateResetToken(userDetails); // see step 3 below
+    }
+
+    @Override
+    public void resetPassword(String email, String resetToken, String newPassword) {
+        String tokenEmail = jwtUtils.extractUsername(resetToken);
+        if (!tokenEmail.equals(email)) {
+            throw new RuntimeException("Invalid reset token");
+        }
+
+        UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                email, "", List.of(new SimpleGrantedAuthority("ROLE_RESET"))
+        );
+        if (!jwtUtils.isTokenValid(resetToken, userDetails)) {
+            throw new RuntimeException("Reset token expired or invalid. Please start over.");
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPassword(new BCryptPasswordEncoder().encode(newPassword));
+        userRepository.save(user);
+        otpRepository.deleteByEmail(email);
+    }
 }

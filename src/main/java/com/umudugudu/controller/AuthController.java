@@ -124,4 +124,22 @@ public class AuthController {
                 "url", baseUrl + "/api/v1/auth/oauth2/authorize/google"
         ));
     }
+    @PostMapping("/password/reset-request")
+    public ResponseEntity<?> requestPasswordReset(@RequestBody ForgotPasswordRequest request) {
+        authService.requestPasswordReset(request.getEmail());
+        return ResponseEntity.ok(Map.of("message", "OTP sent to your email"));
+    }
+    @PostMapping("/password/verify-otp")
+    public ResponseEntity<?> verifyPasswordResetOtp(@RequestBody OtpVerifyRequestEmail request) {
+        String resetToken = authService.verifyPasswordResetOtp(request.getEmail(), request.getOtp());
+        return ResponseEntity.ok(Map.of(
+                "resetToken", resetToken,
+                "message", "OTP verified. Use the resetToken to set your new password."
+        ));
+    }
+    @PostMapping("/password/reset")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request.getEmail(), request.getResetToken(), request.getNewPassword());
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully. You can now log in."));
+    }
 }

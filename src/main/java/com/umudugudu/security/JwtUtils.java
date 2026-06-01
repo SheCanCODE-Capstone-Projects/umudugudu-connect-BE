@@ -1,7 +1,6 @@
 package com.umudugudu.security;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+
 import java.util.function.Function;
 
 @Component
@@ -24,8 +24,9 @@ public class JwtUtils {
     private long refreshExpiryMs;
 
     private SecretKey getKey() {
-
-        return Keys.hmacShaKeyFor(jwtSecret.getBytes());
+        return Keys.hmacShaKeyFor(
+            java.util.Base64.getEncoder().encodeToString(jwtSecret.getBytes()).getBytes()
+        );
     }
 
     public String generateAccessToken(UserDetails userDetails) {
@@ -34,6 +35,7 @@ public class JwtUtils {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No role assigned to user"))
                 .getAuthority();
+
         return buildToken(userDetails.getUsername(), role, jwtExpirationMs);
     }
 
@@ -43,15 +45,16 @@ public class JwtUtils {
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("No role assigned to user"))
                 .getAuthority();
+
         return buildToken(userDetails.getUsername(), role, refreshExpiryMs);
     }
 
     private String buildToken(String subject, String role, long expiry) {
         return Jwts.builder()
-                .subject(subject)
+                .setSubject(subject)
                 .claim("role", role)
-                .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiry))
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + expiry))
                 .signWith(getKey())
                 .compact();
     }
@@ -71,6 +74,18 @@ public class JwtUtils {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         return extractUsername(token).equals(userDetails.getUsername())
-                && !extractClaim(token, Claims::getExpiration).before(new Date());
+            && !extractClaim(token, Claims::getExpiration).before(new Date());
+    }
+    @Value("${app.jwt.reset-expiry-ms:600000}") // 10 min default
+    private long resetExpiryMs;
+
+    public String generateResetToken(UserDetails userDetails) {
+        return Jwts.builder()
+                .setSubject(userDetails.getUsername())
+                .claim("type", "reset")        // prevents reuse as access token
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + resetExpiryMs))
+                .signWith(getKey())
+                .compact();
     }
 }

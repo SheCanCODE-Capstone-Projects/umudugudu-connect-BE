@@ -12,7 +12,7 @@ spring:
   datasource:
     url:               jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:umudugudu_db}
     username:          ${DB_USERNAME:postgres}
-    password:          ${DB_PASSWORD:}
+    password:          ${DB_PASSWORD:postgres123}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -27,10 +27,10 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
   mail:
-    host:     ${MAIL_HOST:smtp.gmail.com}
-    port:     ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    host:     ${MAIL_HOST:smtp-relay.brevo.com}
+    port:     ${MAIL_PORT:2525}
+    username: ${MAIL_USERNAME:ace795001@smtp-brevo.com}
+    password: ${MAIL_PASSWORD:It9H8nGgxazc7ZRC}
     properties:
       mail:
         smtp:
@@ -38,8 +38,6 @@ spring:
           starttls:
             enable: true
             required: true
-          ssl:
-            trust: smtp.gmail.com
 
 server:
   port: 8081
@@ -55,11 +53,14 @@ app:
     secret:            ${JWT_SECRET:dev_secret_placeholder_min_32_chars}
     expiration-ms:     3600000
     refresh-expiry-ms: 604800000
+    reset-expiry-ms:   600000
   cors:
     allowed-origins:   ${CORS_ORIGINS:http://localhost:3000}
   otp:
     ttl-seconds:       300
     max-attempts:      3
+  mail:
+    from: ${MAIL_FROM:nishimwecelie@gmail.com}
   africas-talking:
     api-key:    ${AT_API_KEY:}
     username:   ${AT_USERNAME:}
@@ -144,11 +145,14 @@ app:
     secret:            ${JWT_SECRET}
     expiration-ms:     3600000
     refresh-expiry-ms: 604800000
+    reset-expiry-ms:   600000
   cors:
     allowed-origins:   ${CORS_ORIGINS}
   otp:
     ttl-seconds:       300
     max-attempts:      3
+  mail:
+    from: ${MAIL_FROM:nishimwecelie@gmail.com}
   africas-talking:
     api-key:    ${AT_API_KEY:}
     username:   ${AT_USERNAME:}

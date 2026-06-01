@@ -17,6 +17,9 @@ public class OpenApiConfig {
 
         return new OpenAPI()
                 .addServersItem(new Server()
+                        .url("http://localhost:8081")
+                        .description("Local dev server"))
+                .addServersItem(new Server()
                         .url("https://umudugudu-connect-be-production.up.railway.app")
                         .description("Production server"))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
