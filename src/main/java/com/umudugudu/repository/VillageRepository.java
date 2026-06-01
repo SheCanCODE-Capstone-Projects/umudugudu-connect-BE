@@ -7,6 +7,7 @@ import java.util.UUID;
 
 public interface VillageRepository extends JpaRepository<Village, UUID> {
     Optional<Village> findByVillageLeaderId(UUID villageLeaderId);
+    Optional<Village> findByName(String name);
 
     boolean existsByName(String name);
 }

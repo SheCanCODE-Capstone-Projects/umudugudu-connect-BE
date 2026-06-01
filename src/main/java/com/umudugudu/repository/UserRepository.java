@@ -3,6 +3,8 @@ package com.umudugudu.repository;
 import com.umudugudu.entity.Role;
 import com.umudugudu.entity.User;
 import com.umudugudu.entity.Village;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -21,4 +23,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByIsiboIdIn(List<UUID> isiboIds);
     List<User> findByVillageAndRole(Village village, Role role);
     List<User> findByVillage(Village village);
+    Page<User> findByRole(Role role, Pageable pageable);
+    Page<User> findByVillage(Village village, Pageable pageable);
+    Page<User> findByVillageAndRole(Village village, Role role, Pageable pageable);
+
 }
