@@ -6,6 +6,7 @@ import com.umudugudu.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,6 +24,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
 
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
+
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -30,9 +34,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         OAuth2User oauth2User = (OAuth2User) authentication.getPrincipal();
 
-        String email = oauth2User.getAttribute("email");
+        String email     = oauth2User.getAttribute("email");
         String firstName = oauth2User.getAttribute("given_name");
-        String lastName = oauth2User.getAttribute("family_name");
+        String lastName  = oauth2User.getAttribute("family_name");
 
         User user = userRepository.findByEmail(email).orElseGet(() -> {
             User newUser = new User();
@@ -51,26 +55,14 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
 
-        String accessToken = jwtUtils.generateAccessToken(userDetails);
+        String accessToken  = jwtUtils.generateAccessToken(userDetails);
         String refreshToken = jwtUtils.generateRefreshToken(userDetails);
 
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpServletResponse.SC_OK);
+        // Redirect to frontend dashboard with tokens as query params
+        String redirectUrl = frontendUrl + "/dashboard"
+                + "?accessToken=" + accessToken
+                + "&refreshToken=" + refreshToken;
 
-        String json = String.format("""
-        {
-          "message": "Google login successful",
-          "accessToken": "%s",
-          "refreshToken": "%s",
-          "user": {
-            "email": "%s",
-            "firstName": "%s",
-            "lastName": "%s"
-          }
-        }
-        """, accessToken, refreshToken, email, firstName, lastName);
-
-        response.getWriter().write(json);
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 }
