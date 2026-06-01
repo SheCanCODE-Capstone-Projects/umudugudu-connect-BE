@@ -42,6 +42,8 @@ app:
     expiration-ms:     3600000
     refresh-expiry-ms: 604800000
     reset-expiry-ms:   600000
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:3000}
   cors:
     allowed-origins:   ${CORS_ORIGINS:http://localhost:3000}
   otp:
@@ -124,6 +126,8 @@ app:
     expiration-ms:     3600000
     refresh-expiry-ms: 604800000
     reset-expiry-ms:   600000
+  frontend:
+    url: ${FRONTEND_URL}
   cors:
     allowed-origins:   ${CORS_ORIGINS}
   otp:
