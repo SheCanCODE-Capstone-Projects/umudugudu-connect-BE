@@ -3,96 +3,100 @@ package com.umudugudu.controller;
 import com.umudugudu.dto.request.AssignVillageLeaderRequest;
 import com.umudugudu.dto.request.CreateVillageRequest;
 import com.umudugudu.dto.request.UpdateRoleRequest;
+import com.umudugudu.dto.response.AuditLogResponse;
+import com.umudugudu.dto.response.DashboardResponse;
 import com.umudugudu.dto.response.UserResponseDTO;
-import com.umudugudu.repository.UserRepository;
+import com.umudugudu.entity.User;
 import com.umudugudu.service.AdminService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
+import com.umudugudu.repository.UserRepository;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
+import java.util.UUID;
 
-/**
- * Admin (District / MINALOC) endpoints.
- *
- * GET /api/v1/admin/dashboard          — aggregated KPIs across villages
- * GET /api/v1/admin/users              — list all users (filterable)
- * PUT /api/v1/admin/users/{id}/role    — update user role
- * PUT /api/v1/admin/users/{id}/deactivate — deactivate account
- * GET /api/v1/admin/audit-logs         — paginated audit log
- *
- * All endpoints require ROLE_ADMIN (enforced in SecurityConfig + @PreAuthorize).
- * TODO: Inject AdminService, UserService, AuditLogService and implement.
- */
 @RestController
 @RequestMapping("/api/v1/admin")
 @PreAuthorize("hasRole('ADMIN')")
+@RequiredArgsConstructor
 public class AdminController {
-    @Autowired
-    private AdminService adminService;
-    @Autowired
-    private UserRepository userRepository;
+
+    private final AdminService adminService;
+    private final UserRepository userRepository;
+
+    //Aggregated Dashboard
+
     @GetMapping("/dashboard")
-    public ResponseEntity<Map<String, String>> dashboard() {
-        // TODO: AdminService.getDashboardStats() — attendance %, payments, open requests by village
-        return ResponseEntity.ok(Map.of("message", "TODO: return aggregated KPIs"));
+    public ResponseEntity<DashboardResponse> dashboard() {
+        return ResponseEntity.ok(adminService.getDashboardStats());
     }
 
+    // User Management
+
     @GetMapping("/users")
-    public ResponseEntity<Map<String, String>> users(
+    public ResponseEntity<Page<UserResponseDTO>> users(
             @RequestParam(required = false) String village,
             @RequestParam(required = false) String role,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        return ResponseEntity.ok(Map.of("message", "TODO: return paginated users list"));
-    }
-    @GetMapping("/users/search")
-    public ResponseEntity<UserResponseDTO> searchUserByEmail(
-            @RequestParam String email
-    ) {
-        UserResponseDTO user = adminService.findUserByEmail(email);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.ok(adminService.getAllUsers(village, role, page, size));
     }
 
+    @GetMapping("/users/search")
+    public ResponseEntity<UserResponseDTO> searchUserByEmail(
+            @RequestParam String email) {
+        return ResponseEntity.ok(adminService.findUserByEmail(email));
+    }
 
     @PutMapping("/users/role")
     public ResponseEntity<?> updateRole(@RequestBody UpdateRoleRequest request) {
-
-        String message = adminService.updateRoleByEmail(
-                request.getEmail(),
-                request.getRole()
-        );
-
-        return ResponseEntity.ok(
-                Map.of("message", message)
-        );
+        return ResponseEntity.ok(Map.of("message",
+                adminService.updateRoleByEmail(request.getEmail(), request.getRole())));
     }
-
 
     @PutMapping("/users/{id}/deactivate")
-    public ResponseEntity<Map<String, String>> deactivate(@PathVariable String id) {
-        // TODO: UserService.deactivate(id) + AuditLogService.log(...)
-        return ResponseEntity.ok(Map.of("message", "TODO: deactivate user " + id));
+    public ResponseEntity<?> deactivate(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String username = userDetails.getUsername();
+
+        // handle both email and phone number login
+        User currentUser = userRepository.findByEmail(username)
+                .orElseGet(() -> userRepository.findByPhoneNumber(username)
+                        .orElseThrow(() -> new RuntimeException("User not found")));
+
+        return ResponseEntity.ok(Map.of("message",
+                adminService.deactivateUser(id, currentUser)));
     }
 
+    @PutMapping("/users/assign-village-leader")
+    public ResponseEntity<?> assignVillageLeader(
+            @RequestBody AssignVillageLeaderRequest request) {
+        return ResponseEntity.ok(Map.of("message",
+                adminService.assignVillageLeader(request.getEmail(), request.getVillageId())));
+    }
+
+    @PostMapping("/villages")
+    public ResponseEntity<?> createVillage(@RequestBody CreateVillageRequest request) {
+        return ResponseEntity.ok(Map.of("message",
+                adminService.createVillage(request.getName())));
+    }
+
+    // Audit Logs
+
     @GetMapping("/audit-logs")
-    public ResponseEntity<Map<String, String>> auditLogs(
+    public ResponseEntity<Page<AuditLogResponse>> auditLogs(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) String userId,
             @RequestParam(required = false) String action) {
-        return ResponseEntity.ok(Map.of("message", "TODO: return paginated audit logs"));
+        return ResponseEntity.ok(
+                adminService.getAuditLogs(userId, action, page, size));
     }
-    @PutMapping("/users/assign-village-leader")
-    public ResponseEntity<?> assignVillageLeader(@RequestBody AssignVillageLeaderRequest request) {
-        String message = adminService.assignVillageLeader(request.getEmail(), request.getVillageId());
-        return ResponseEntity.ok(Map.of("message", message));
-    }
-    @PostMapping("/villages")
-    public ResponseEntity<?> createVillage(@RequestBody CreateVillageRequest request) {
-        String message = adminService.createVillage(request.getName());
-        return ResponseEntity.ok(Map.of("message", message));
-    }
-
 }
